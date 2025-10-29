@@ -1,0 +1,3 @@
+nombre = "mora"
+
+print(nombre)
