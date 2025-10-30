@@ -1,3 +1,7 @@
-nombre = "mora"
+import pygame
+import sys
 
-print(nombre)
+pygame.init()
+
+pantalla = pygame.display.set_mode(800, 600)
+pygame.display.set_caption("prueba")
