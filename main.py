@@ -1,23 +1,43 @@
 import pygame
-import sys
+import os
+import sys  # Agregué sys que te faltaba
 
 pygame.init()
+pygame.mixer.init()
 
 WIDTH, HEIGHT = 1220, 680
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Recorrido Sarmiento: Último Viaje")
+
+SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "sounds")
+BACKGROUND_MUSIC = os.path.join(SOUNDS_DIR, "sonido-menu.flac")  
+
+# Función para cargar y reproducir el sonido de fondo
+def play_background_music():
+    try:
+        # Verificar si el archivo existe
+        if os.path.exists(BACKGROUND_MUSIC):
+            pygame.mixer.music.load(BACKGROUND_MUSIC)
+            pygame.mixer.music.set_volume(0.5)  # Volumen al 50% - puedes ajustarlo
+            pygame.mixer.music.play(-1)  # -1 significa loop infinito
+            print("Música de fondo reproducida correctamente")
+        else:
+            print(f"Archivo de música no encontrado: {BACKGROUND_MUSIC}")
+            print("Asegúrate de que existe la carpeta 'sounds' con el archivo de música")
+    except pygame.error as e:
+        print(f"Error al reproducir música: {e}")
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
 LIGHT_GRAY = (200, 200, 200)
 
-button_font = pygame.font.SysFont("arial", 24)  # Fuente más pequeña para botones
+button_font = pygame.font.SysFont("arial", 24)
 
 # Botones más pequeños
-button_width, button_height = 250, 60  # Botones más chicos
+button_width, button_height = 250, 60
 button_margin = 35
-buttons_y_start = 300  # Posición más baja para los botones
+buttons_y_start = 300
 
 buttons = [
     {"text": "Iniciar", "rect": pygame.Rect(50, buttons_y_start, button_width, button_height), "clicked": False},
@@ -59,6 +79,9 @@ def draw_buttons():
 
 # Bucle principal
 def main():
+    # REPRODUCIR MÚSICA AL INICIAR EL JUEGO
+    play_background_music()
+    
     clock = pygame.time.Clock()
     
     while True:
@@ -77,10 +100,10 @@ def main():
                         
                         if button["text"] == "Iniciar":
                             print("Iniciando nueva partida...")
-                            # Aquí iría la lógica para iniciar el juego
+                            # DETENER MÚSICA AL INICIAR JUEGO (opcional)
+                            # pygame.mixer.music.stop()
                         elif button["text"] == "Cargar Partida":
                             print("Cargando partida...")
-                            # Aquí iría la lógica para cargar una partida
                         elif button["text"] == "Salir":
                             pygame.quit()
                             sys.exit()
