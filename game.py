@@ -16,6 +16,11 @@ class Game:
         self.player_name = ""
         self.player_id = None
         
+        # Estados para cargar partida
+        self.load_game_state = "MENU"  # MENU, NO_SAVES, SELECT_PLAYER
+        self.available_players = []
+        self.selected_player_index = 0
+        
         # Managers
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         
@@ -29,15 +34,41 @@ class Game:
         # Botones del menú
         self.setup_menu_buttons()
         
-        # Control de volumen desplegable - NUEVO DISEÑO
+        # Botones para cargar partida
+        self.setup_load_game_buttons()
+        
+        # Control de volumen desplegable
         self.setup_volume_control()
     
+    def setup_load_game_buttons(self):
+        """Configura los botones para la pantalla de cargar partida"""
+        button_width, button_height = 300, 50
+        center_x = self.WIDTH // 2 - button_width // 2
+        
+        self.load_game_buttons = {
+            "back": {
+                "text": "Volver al Menú",
+                "rect": pygame.Rect(center_x, 580, button_width, button_height),
+                "clicked": False
+            },
+            "new_game": {
+                "text": "Crear Nueva Partida",
+                "rect": pygame.Rect(center_x, 480, button_width, button_height),
+                "clicked": False
+            },
+            "confirm_load": {
+                "text": "Cargar Partida Seleccionada",
+                "rect": pygame.Rect(center_x, 530, button_width, button_height),
+                "clicked": False
+            }
+        }
+    
     def setup_volume_control(self):
-        """Configura el control de volumen desplegable con nuevo diseño"""
-        button_size = 45  # Un poco más grande para mejor usabilidad
+        """Configura el control de volumen desplegable"""
+        button_size = 45
         margin = 20
         
-        # Botón principal de volumen - ahora circular con área de colisión circular
+        # Botón principal de volumen
         self.volume_button = {
             "rect": pygame.Rect(self.WIDTH - button_size - margin, margin, button_size, button_size),
             "center": (self.WIDTH - button_size - margin + button_size//2, margin + button_size//2),
@@ -46,12 +77,12 @@ class Game:
             "hover": False
         }
         
-        # Panel desplegable - más compacto y elegante
+        # Panel desplegable
         self.volume_panel = {
             "visible": False,
-            "rect": pygame.Rect(self.WIDTH - 110, 70, 100, 180),  # Más estrecho y alto
+            "rect": pygame.Rect(self.WIDTH - 110, 70, 100, 180),
             "slider": {
-                "rect": pygame.Rect(0, 0, 16, 16),  # Handle más grande
+                "rect": pygame.Rect(0, 0, 16, 16),
                 "dragging": False
             }
         }
@@ -66,6 +97,106 @@ class Game:
             {"text": "Cargar Partida", "rect": pygame.Rect(50, buttons_y_start + button_height + button_margin, button_width, button_height), "clicked": False},
             {"text": "Salir", "rect": pygame.Rect(50, buttons_y_start + 2*(button_height + button_margin), button_width, button_height), "clicked": False}
         ]
+    
+    def check_saved_games(self):
+        """Verifica si hay partidas guardadas y actualiza el estado"""
+        self.available_players = db_manager.obtener_todos_los_jugadores()
+        
+        if not self.available_players:
+            self.load_game_state = "NO_SAVES"
+            print("No hay partidas guardadas")
+        else:
+            self.load_game_state = "SELECT_PLAYER"
+            self.selected_player_index = 0
+            print(f"Se encontraron {len(self.available_players)} jugadores")
+    
+    def handle_load_game_events(self, event):
+        """Maneja eventos en la pantalla de cargar partida"""
+        if self.handle_volume_events(event):
+            return True
+            
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            
+            # Manejar botones según el estado
+            if self.load_game_state == "NO_SAVES":
+                if self.load_game_buttons["back"]["rect"].collidepoint(mouse_pos):
+                    self.load_game_buttons["back"]["clicked"] = True
+                    return True
+                elif self.load_game_buttons["new_game"]["rect"].collidepoint(mouse_pos):
+                    self.load_game_buttons["new_game"]["clicked"] = True
+                    return True
+            
+            elif self.load_game_state == "SELECT_PLAYER":
+                if self.load_game_buttons["back"]["rect"].collidepoint(mouse_pos):
+                    self.load_game_buttons["back"]["clicked"] = True
+                    return True
+                elif self.load_game_buttons["confirm_load"]["rect"].collidepoint(mouse_pos):
+                    self.load_game_buttons["confirm_load"]["clicked"] = True
+                    return True
+                
+                # Selección de jugador con clic
+                for i, player in enumerate(self.available_players):
+                    player_rect = pygame.Rect(200, 150 + i * 80, 800, 70)
+                    if player_rect.collidepoint(mouse_pos):
+                        self.selected_player_index = i
+                        return True
+        
+        elif event.type == pygame.MOUSEBUTTONUP:
+            # Resetear todos los botones
+            for button in self.load_game_buttons.values():
+                button["clicked"] = False
+            
+            # Manejar acciones al soltar el clic
+            if self.load_game_state == "NO_SAVES":
+                if self.load_game_buttons["back"]["clicked"]:
+                    self.current_state = "MENU"
+                    return True
+                elif self.load_game_buttons["new_game"]["clicked"]:
+                    self.current_state = "ENTER_NAME"
+                    return True
+            
+            elif self.load_game_state == "SELECT_PLAYER":
+                if self.load_game_buttons["back"]["clicked"]:
+                    self.current_state = "MENU"
+                    return True
+                elif self.load_game_buttons["confirm_load"]["clicked"]:
+                    self.load_selected_game()
+                    return True
+        
+        # Navegación con teclado
+        elif event.type == pygame.KEYDOWN:
+            if self.load_game_state == "SELECT_PLAYER":
+                if event.key == pygame.K_UP and self.selected_player_index > 0:
+                    self.selected_player_index -= 1
+                    return True
+                elif event.key == pygame.K_DOWN and self.selected_player_index < len(self.available_players) - 1:
+                    self.selected_player_index += 1
+                    return True
+                elif event.key == pygame.K_RETURN:
+                    self.load_selected_game()
+                    return True
+                elif event.key == pygame.K_ESCAPE:
+                    self.current_state = "MENU"
+                    return True
+        
+        return False
+    
+    def load_selected_game(self):
+        """Carga la partida del jugador seleccionado"""
+        if self.available_players and 0 <= self.selected_player_index < len(self.available_players):
+            selected_player = self.available_players[self.selected_player_index]
+            self.player_id = selected_player[0]
+            self.player_name = selected_player[1]
+            
+            print(f"Cargando partida de: {self.player_name} (ID: {self.player_id})")
+            
+            # Actualizar fecha de última partida
+            db_manager.guardar_jugador(self.player_name)
+            
+            # Cambiar al estado de juego
+            self.current_state = "PLAYING"
+            self.load_game_state = "MENU"
     
     def play_background_music(self):
         try:
@@ -98,7 +229,7 @@ class Game:
     def set_volume_from_slider(self, slider_y):
         """Establece el volumen basado en la posición del slider"""
         panel_rect = self.volume_panel["rect"]
-        slider_area_y = panel_rect.y + 40  # Ajustado para nuevo diseño
+        slider_area_y = panel_rect.y + 40
         slider_area_height = 110
         
         # Calcular posición relativa dentro del área del slider
@@ -131,8 +262,8 @@ class Game:
             # Verificar clic en el slider si el panel está visible
             if self.volume_panel["visible"]:
                 # Obtener la posición REAL de la barra (debe coincidir con SceneManager)
-                bar_x = self.volume_panel["rect"].x + 45  # MISMA posición que en draw_modern_volume_bar
-                bar_y = self.volume_panel["rect"].y + 40  # MISMA posición que en draw_modern_volume_bar
+                bar_x = self.volume_panel["rect"].x + 45
+                bar_y = self.volume_panel["rect"].y + 40
                 bar_width = 10
                 bar_height = 110
                 
@@ -195,18 +326,6 @@ class Game:
                 return True
         
         return False
-    
-    def get_slider_absolute_rect(self):
-        """Obtiene el rectángulo absoluto del slider"""
-        panel_rect = self.volume_panel["rect"]
-        slider_rect = self.volume_panel["slider"]["rect"]
-        
-        return pygame.Rect(
-            panel_rect.x + slider_rect.x,
-            panel_rect.y + slider_rect.y,
-            slider_rect.width,
-            slider_rect.height
-        )
 
     def handle_menu_events(self, event):
         """Maneja eventos en el estado MENU"""
@@ -224,7 +343,8 @@ class Game:
                         self.current_state = "ENTER_NAME"
                     elif button["text"] == "Cargar Partida":
                         print("Cargando partida...")
-                        self.cargar_partida()
+                        self.check_saved_games()
+                        self.current_state = "LOAD_GAME"
                     elif button["text"] == "Salir":
                         pygame.quit()
                         sys.exit()
@@ -282,6 +402,8 @@ class Game:
                     self.handle_menu_events(event)
                 elif self.current_state == "ENTER_NAME":
                     self.handle_name_input_events(event)
+                elif self.current_state == "LOAD_GAME":
+                    self.handle_load_game_events(event)
                 elif self.current_state == "PLAYING":
                     self.handle_volume_events(event)
             
@@ -304,6 +426,17 @@ class Game:
                     self.volume_button, 
                     self.volume_panel,
                     self.volume_level, 
+                    self.volume_muted
+                )
+            elif self.current_state == "LOAD_GAME":
+                self.scene_manager.draw_load_game_screen(
+                    self.load_game_state,
+                    self.available_players,
+                    self.selected_player_index,
+                    self.load_game_buttons,
+                    self.volume_button,
+                    self.volume_panel,
+                    self.volume_level,
                     self.volume_muted
                 )
             elif self.current_state == "PLAYING":
@@ -344,4 +477,12 @@ class Game:
     def update_slider_position(self):
         """Actualiza la posición del slider basado en el volumen actual"""
         # Esta función se mantiene para compatibilidad
+        # La posición real se calcula en tiempo real en draw_modern_volume_bar
         pass
+
+# Ejecutar el juego
+if __name__ == "__main__":
+    pygame.init()
+    pygame.mixer.init()
+    game = Game()
+    game.run()
