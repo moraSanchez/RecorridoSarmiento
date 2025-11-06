@@ -34,14 +34,10 @@ class Game:
         # Botones del menú
         self.setup_menu_buttons()
         
-<<<<<<< Updated upstream
-        # Control de volumen desplegable
-=======
         # Botones para cargar partida
         self.setup_load_game_buttons()
         
-        # Control de volumen desplegable - NUEVO DISEÑO
->>>>>>> Stashed changes
+        # Control de volumen desplegable
         self.setup_volume_control()
     
     def setup_load_game_buttons(self):
@@ -49,33 +45,34 @@ class Game:
         button_width, button_height = 300, 50
         center_x = self.WIDTH // 2 - button_width // 2
         
-        # POSICIONES MÁS ABAJO - Aumenté las coordenadas Y
         self.load_game_buttons = {
             "back": {
                 "text": "Volver al Menú",
-                "rect": pygame.Rect(center_x, 580, button_width, button_height),  # Cambiado de 500 a 580
+                "rect": pygame.Rect(center_x, 580, button_width, button_height),
                 "clicked": False
             },
             "new_game": {
                 "text": "Crear Nueva Partida",
-                "rect": pygame.Rect(center_x, 480, button_width, button_height),  # Cambiado de 400 a 480
+                "rect": pygame.Rect(center_x, 480, button_width, button_height),
                 "clicked": False
             },
             "confirm_load": {
                 "text": "Cargar Partida Seleccionada",
-                "rect": pygame.Rect(center_x, 530, button_width, button_height),  # Cambiado de 450 a 530
+                "rect": pygame.Rect(center_x, 530, button_width, button_height),
                 "clicked": False
             }
         }
     
     def setup_volume_control(self):
         """Configura el control de volumen desplegable"""
-        button_size = 35
-        margin = 15
+        button_size = 45
+        margin = 20
         
         # Botón principal de volumen
         self.volume_button = {
             "rect": pygame.Rect(self.WIDTH - button_size - margin, margin, button_size, button_size),
+            "center": (self.WIDTH - button_size - margin + button_size//2, margin + button_size//2),
+            "radius": button_size // 2,
             "clicked": False,
             "hover": False
         }
@@ -83,9 +80,9 @@ class Game:
         # Panel desplegable
         self.volume_panel = {
             "visible": False,
-            "rect": pygame.Rect(self.WIDTH - 120, 60, 100, 150),
+            "rect": pygame.Rect(self.WIDTH - 110, 70, 100, 180),
             "slider": {
-                "rect": pygame.Rect(0, 0, 20, 20),
+                "rect": pygame.Rect(0, 0, 16, 16),
                 "dragging": False
             }
         }
@@ -232,8 +229,8 @@ class Game:
     def set_volume_from_slider(self, slider_y):
         """Establece el volumen basado en la posición del slider"""
         panel_rect = self.volume_panel["rect"]
-        slider_area_y = panel_rect.y + 30
-        slider_area_height = 100
+        slider_area_y = panel_rect.y + 40
+        slider_area_height = 110
         
         # Calcular posición relativa dentro del área del slider
         relative_y = slider_y - slider_area_y
@@ -253,8 +250,10 @@ class Game:
         mouse_pos = pygame.mouse.get_pos()
         
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # Verificar clic en botón principal de volumen
-            if self.volume_button["rect"].collidepoint(mouse_pos):
+            # Verificar clic en botón principal de volumen (colisión circular)
+            distance = ((mouse_pos[0] - self.volume_button["center"][0]) ** 2 + 
+                       (mouse_pos[1] - self.volume_button["center"][1]) ** 2) ** 0.5
+            if distance <= self.volume_button["radius"]:
                 self.volume_button["clicked"] = True
                 # Alternar visibilidad del panel
                 self.volume_panel["visible"] = not self.volume_panel["visible"]
@@ -262,20 +261,32 @@ class Game:
             
             # Verificar clic en el slider si el panel está visible
             if self.volume_panel["visible"]:
-                slider_abs_rect = self.get_slider_absolute_rect()
-                if slider_abs_rect.collidepoint(mouse_pos):
+                # Obtener la posición REAL de la barra (debe coincidir con SceneManager)
+                bar_x = self.volume_panel["rect"].x + 45
+                bar_y = self.volume_panel["rect"].y + 40
+                bar_width = 10
+                bar_height = 110
+                
+                # Área de la barra completa (para clic y saltar)
+                bar_area = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+                
+                # Verificar clic en la barra
+                if bar_area.collidepoint(mouse_pos):
                     self.volume_panel["slider"]["dragging"] = True
                     self.set_volume_from_slider(mouse_pos[1])
                     return True
                 
-                # Verificar clic en el área del slider (para hacer clic y saltar)
-                slider_area = pygame.Rect(
-                    self.volume_panel["rect"].x + 20,
-                    self.volume_panel["rect"].y + 30,
-                    60,
-                    100
+                # Verificar clic en el handle actual
+                current_handle_y = bar_y + (bar_height - int(bar_height * self.volume_level))
+                handle_radius = 9
+                handle_area = pygame.Rect(
+                    bar_x - handle_radius, 
+                    current_handle_y - handle_radius,
+                    handle_radius * 2, 
+                    handle_radius * 2
                 )
-                if slider_area.collidepoint(mouse_pos):
+                
+                if handle_area.collidepoint(mouse_pos):
                     self.volume_panel["slider"]["dragging"] = True
                     self.set_volume_from_slider(mouse_pos[1])
                     return True
@@ -290,8 +301,10 @@ class Game:
                 self.volume_panel["slider"]["dragging"] = False
         
         elif event.type == pygame.MOUSEMOTION:
-            # Actualizar hover del botón
-            self.volume_button["hover"] = self.volume_button["rect"].collidepoint(mouse_pos)
+            # Actualizar hover del botón (colisión circular)
+            distance = ((mouse_pos[0] - self.volume_button["center"][0]) ** 2 + 
+                       (mouse_pos[1] - self.volume_button["center"][1]) ** 2) ** 0.5
+            self.volume_button["hover"] = distance <= self.volume_button["radius"]
             
             # Arrastrar el slider si está siendo draggado
             if self.volume_panel["slider"]["dragging"]:
@@ -313,20 +326,9 @@ class Game:
                 return True
         
         return False
-    
-    def get_slider_absolute_rect(self):
-        """Obtiene el rectángulo absoluto del slider"""
-        panel_rect = self.volume_panel["rect"]
-        slider_rect = self.volume_panel["slider"]["rect"]
-        
-        return pygame.Rect(
-            panel_rect.x + slider_rect.x,
-            panel_rect.y + slider_rect.y,
-            slider_rect.width,
-            slider_rect.height
-        )
-    
+
     def handle_menu_events(self, event):
+        """Maneja eventos en el estado MENU"""
         if self.handle_volume_events(event):
             return
             
@@ -350,8 +352,9 @@ class Game:
         if event.type == pygame.MOUSEBUTTONUP:
             for button in self.menu_buttons:
                 button["clicked"] = False
-    
+
     def handle_name_input_events(self, event):
+        """Maneja eventos en el estado ENTER_NAME"""
         if self.handle_volume_events(event):
             return
             
@@ -373,9 +376,9 @@ class Game:
             else:
                 if len(self.player_name) < 20 and event.unicode.isprintable():
                     self.player_name += event.unicode
-<<<<<<< Updated upstream
-    
+
     def cargar_partida(self):
+        """Carga partidas guardadas desde la base de datos"""
         jugadores = db_manager.obtener_todos_los_jugadores()
         if jugadores:
             print("Jugadores encontrados en la base de datos:")
@@ -383,8 +386,6 @@ class Game:
                 print(f"ID: {jugador[0]}, Nombre: {jugador[1]}, Última partida: {jugador[3]}")
         else:
             print("No hay partidas guardadas en la base de datos")
-=======
->>>>>>> Stashed changes
     
     def run(self):
         self.play_background_music()
@@ -475,18 +476,13 @@ class Game:
     
     def update_slider_position(self):
         """Actualiza la posición del slider basado en el volumen actual"""
-        panel_rect = self.volume_panel["rect"]
-        slider_height = 20
-        
-        # Calcular posición Y (invertida: volumen 1.0 = arriba, volumen 0.0 = abajo)
-        slider_area_y = panel_rect.y + 30
-        slider_y = slider_area_y + (100 * (1.0 - self.volume_level)) - (slider_height // 2)
-        
-        # Asegurarse de que el slider esté dentro del área
-        slider_y = max(slider_area_y, min(slider_area_y + 100 - slider_height, slider_y))
-        
-        # Posicionar el slider (coordenadas absolutas)
-        self.volume_panel["slider"]["rect"].x = panel_rect.x + 40
-        self.volume_panel["slider"]["rect"].y = slider_y
-        self.volume_panel["slider"]["rect"].width = 20
-        self.volume_panel["slider"]["rect"].height = slider_height
+        # Esta función se mantiene para compatibilidad
+        # La posición real se calcula en tiempo real en draw_modern_volume_bar
+        pass
+
+# Ejecutar el juego
+if __name__ == "__main__":
+    pygame.init()
+    pygame.mixer.init()
+    game = Game()
+    game.run()
