@@ -6,7 +6,7 @@ from database import db_manager
 
 class Game:
     def __init__(self):
-        # Configuración de pantalla (NO inicializar Pygame aquí)
+        # Configuración de pantalla
         self.WIDTH, self.HEIGHT = 1220, 680
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Recorrido Sarmiento: Último Viaje")
@@ -19,26 +19,39 @@ class Game:
         # Managers
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         
-        # Sonido - AÑADIR CONFIGURACIÓN DE VOLUMEN
+        # Sonido
         self.SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "sounds")
         self.BACKGROUND_MUSIC = os.path.join(self.SOUNDS_DIR, "sonido-menu.flac")
-        self.volume_level = 0.5  # Volumen inicial 50%
+        self.volume_level = 0.5
         self.volume_muted = False
-        self.volume_pre_mute = 0.5  # Guardar volumen antes de mutear
+        self.volume_pre_mute = 0.5
         
         # Botones del menú
         self.setup_menu_buttons()
         
-        # Botón de volumen - AÑADIR
-        self.setup_volume_button()
+        # Control de volumen desplegable
+        self.setup_volume_control()
     
-    def setup_volume_button(self):
-        """Configura el botón de volumen en la esquina superior derecha"""
-        button_size = 40
-        margin = 20
+    def setup_volume_control(self):
+        """Configura el control de volumen desplegable"""
+        button_size = 35
+        margin = 15
+        
+        # Botón principal de volumen
         self.volume_button = {
             "rect": pygame.Rect(self.WIDTH - button_size - margin, margin, button_size, button_size),
-            "clicked": False
+            "clicked": False,
+            "hover": False
+        }
+        
+        # Panel desplegable
+        self.volume_panel = {
+            "visible": False,
+            "rect": pygame.Rect(self.WIDTH - 120, 60, 100, 150),
+            "slider": {
+                "rect": pygame.Rect(0, 0, 20, 20),
+                "dragging": False
+            }
         }
     
     def setup_menu_buttons(self):
@@ -65,69 +78,119 @@ class Game:
             print(f"Error al reproducir música: {e}")
     
     def update_volume(self):
-        """Actualiza el volumen de la música según el nivel actual"""
+        """Actualiza el volumen de la música"""
         pygame.mixer.music.set_volume(self.volume_level)
+        print(f"Volumen actualizado: {int(self.volume_level * 100)}%")
     
     def toggle_mute(self):
         """Alternar entre muteado y no muteado"""
         if self.volume_muted:
-            # Restaurar volumen anterior
             self.volume_level = self.volume_pre_mute
             self.volume_muted = False
         else:
-            # Guardar volumen actual y mutear
             self.volume_pre_mute = self.volume_level
             self.volume_level = 0.0
             self.volume_muted = True
         self.update_volume()
     
-    def decrease_volume(self):
-        """Disminuir volumen en 10%"""
-        if not self.volume_muted:
-            self.volume_level = max(0.0, self.volume_level - 0.1)
-            self.update_volume()
-    
-    def increase_volume(self):
-        """Aumentar volumen en 10%"""
-        if not self.volume_muted:
-            self.volume_level = min(1.0, self.volume_level + 0.1)
-            self.update_volume()
+    def set_volume_from_slider(self, slider_y):
+        """Establece el volumen basado en la posición del slider"""
+        panel_rect = self.volume_panel["rect"]
+        slider_area_y = panel_rect.y + 30
+        slider_area_height = 100
+        
+        # Calcular posición relativa dentro del área del slider
+        relative_y = slider_y - slider_area_y
+        relative_y = max(0, min(slider_area_height, relative_y))
+        
+        # Convertir a volumen (invertido: arriba = 1.0, abajo = 0.0)
+        new_volume = 1.0 - (relative_y / slider_area_height)
+        new_volume = max(0.0, min(1.0, new_volume))
+        
+        self.volume_level = new_volume
+        if self.volume_muted and new_volume > 0:
+            self.volume_muted = False
+        self.update_volume()
     
     def handle_volume_events(self, event):
-        """Manejar eventos relacionados con el volumen"""
+        """Manejar eventos del control de volumen desplegable"""
+        mouse_pos = pygame.mouse.get_pos()
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            
-            # Verificar clic en botón de volumen
+            # Verificar clic en botón principal de volumen
             if self.volume_button["rect"].collidepoint(mouse_pos):
                 self.volume_button["clicked"] = True
-                self.toggle_mute()
+                # Alternar visibilidad del panel
+                self.volume_panel["visible"] = not self.volume_panel["visible"]
                 return True
             
-            # Verificar clic en barra de volumen (si la implementas)
-            # elif self.volume_slider_rect.collidepoint(mouse_pos):
-            #     # Aquí podrías implementar un slider más adelante
-            #     pass
+            # Verificar clic en el slider si el panel está visible
+            if self.volume_panel["visible"]:
+                slider_abs_rect = self.get_slider_absolute_rect()
+                if slider_abs_rect.collidepoint(mouse_pos):
+                    self.volume_panel["slider"]["dragging"] = True
+                    self.set_volume_from_slider(mouse_pos[1])
+                    return True
+                
+                # Verificar clic en el área del slider (para hacer clic y saltar)
+                slider_area = pygame.Rect(
+                    self.volume_panel["rect"].x + 20,
+                    self.volume_panel["rect"].y + 30,
+                    60,
+                    100
+                )
+                if slider_area.collidepoint(mouse_pos):
+                    self.volume_panel["slider"]["dragging"] = True
+                    self.set_volume_from_slider(mouse_pos[1])
+                    return True
+                
+                # Verificar clic en el área del panel (para cerrar al hacer clic fuera)
+                if not self.volume_panel["rect"].collidepoint(mouse_pos):
+                    self.volume_panel["visible"] = False
         
         elif event.type == pygame.MOUSEBUTTONUP:
             self.volume_button["clicked"] = False
+            if self.volume_panel["slider"]["dragging"]:
+                self.volume_panel["slider"]["dragging"] = False
+        
+        elif event.type == pygame.MOUSEMOTION:
+            # Actualizar hover del botón
+            self.volume_button["hover"] = self.volume_button["rect"].collidepoint(mouse_pos)
+            
+            # Arrastrar el slider si está siendo draggado
+            if self.volume_panel["slider"]["dragging"]:
+                self.set_volume_from_slider(mouse_pos[1])
+                return True
         
         # Atajos de teclado para volumen
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_m:  # Tecla M para mute/unmute
+            if event.key == pygame.K_m:
                 self.toggle_mute()
                 return True
-            elif event.key == pygame.K_MINUS or event.key == pygame.K_KP_MINUS:  # Tecla - para bajar volumen
-                self.decrease_volume()
+            elif event.key == pygame.K_MINUS or event.key == pygame.K_KP_MINUS:
+                self.volume_level = max(0.0, self.volume_level - 0.1)
+                self.update_volume()
                 return True
-            elif event.key == pygame.K_PLUS or event.key == pygame.K_KP_PLUS or event.key == pygame.K_EQUALS:  # Tecla + para subir volumen
-                self.increase_volume()
+            elif event.key == pygame.K_PLUS or event.key == pygame.K_KP_PLUS or event.key == pygame.K_EQUALS:
+                self.volume_level = min(1.0, self.volume_level + 0.1)
+                self.update_volume()
                 return True
         
         return False
     
+    def get_slider_absolute_rect(self):
+        """Obtiene el rectángulo absoluto del slider"""
+        panel_rect = self.volume_panel["rect"]
+        slider_rect = self.volume_panel["slider"]["rect"]
+        
+        return pygame.Rect(
+            panel_rect.x + slider_rect.x,
+            panel_rect.y + slider_rect.y,
+            slider_rect.width,
+            slider_rect.height
+        )
+    
     def handle_menu_events(self, event):
-        # Primero verificar eventos de volumen
         if self.handle_volume_events(event):
             return
             
@@ -152,17 +215,14 @@ class Game:
                 button["clicked"] = False
     
     def handle_name_input_events(self, event):
-        # Primero verificar eventos de volumen
         if self.handle_volume_events(event):
             return
             
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                # Volver al menú
                 self.current_state = "MENU"
                 self.player_name = ""
             elif event.key == pygame.K_RETURN:
-                # Confirmar nombre
                 if self.player_name.strip():
                     print(f"Nombre ingresado: {self.player_name}")
                     self.player_id = db_manager.guardar_jugador(self.player_name.strip())
@@ -172,15 +232,12 @@ class Game:
                     else:
                         print("Error al guardar el jugador en la base de datos")
             elif event.key == pygame.K_BACKSPACE:
-                # Borrar caracter
                 self.player_name = self.player_name[:-1]
             else:
-                # Agregar caracter (solo letras y espacios)
                 if len(self.player_name) < 20 and event.unicode.isprintable():
                     self.player_name += event.unicode
     
     def cargar_partida(self):
-        """Método opcional para cargar partidas"""
         jugadores = db_manager.obtener_todos_los_jugadores()
         if jugadores:
             print("Jugadores encontrados en la base de datos:")
@@ -190,7 +247,6 @@ class Game:
             print("No hay partidas guardadas en la base de datos")
     
     def run(self):
-        # Reproducir música al iniciar
         self.play_background_music()
         
         clock = pygame.time.Clock()
@@ -201,22 +257,35 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                 
-                # Manejar eventos según el estado actual
                 if self.current_state == "MENU":
                     self.handle_menu_events(event)
                 elif self.current_state == "ENTER_NAME":
                     self.handle_name_input_events(event)
                 elif self.current_state == "PLAYING":
-                    # También manejar volumen en pantalla de juego
                     self.handle_volume_events(event)
+            
+            # Actualizar posición del slider basado en el volumen actual
+            if not self.volume_panel["slider"]["dragging"]:
+                self.update_slider_position()
             
             # Dibujar según el estado actual
             if self.current_state == "MENU":
-                self.scene_manager.draw_menu(self.menu_buttons, self.volume_button, self.volume_level, self.volume_muted)
+                self.scene_manager.draw_menu(
+                    self.menu_buttons, 
+                    self.volume_button, 
+                    self.volume_panel,
+                    self.volume_level, 
+                    self.volume_muted
+                )
             elif self.current_state == "ENTER_NAME":
-                self.scene_manager.draw_name_input_screen(self.player_name, self.volume_button, self.volume_level, self.volume_muted)
+                self.scene_manager.draw_name_input_screen(
+                    self.player_name, 
+                    self.volume_button, 
+                    self.volume_panel,
+                    self.volume_level, 
+                    self.volume_muted
+                )
             elif self.current_state == "PLAYING":
-                # Pantalla temporal de juego
                 self.screen.fill((0, 0, 0))
                 font = pygame.font.SysFont("arial", 36)
                 
@@ -224,18 +293,21 @@ class Game:
                 texto_id = font.render(f"ID en BD: {self.player_id}", True, (200, 200, 200))
                 texto_instrucciones = font.render("El juego está en desarrollo...", True, (180, 180, 180))
                 texto_volver = font.render("Presiona ESC para volver al menú", True, (150, 150, 150))
-                texto_volumen = font.render(f"Volumen: {int(self.volume_level * 100)}% {'(MUTEADO)' if self.volume_muted else ''}", True, (150, 200, 150))
                 
-                self.screen.blit(texto_bienvenida, (self.WIDTH//2 - texto_bienvenida.get_width()//2, self.HEIGHT//2 - 100))
-                self.screen.blit(texto_id, (self.WIDTH//2 - texto_id.get_width()//2, self.HEIGHT//2 - 50))
-                self.screen.blit(texto_instrucciones, (self.WIDTH//2 - texto_instrucciones.get_width()//2, self.HEIGHT//2))
-                self.screen.blit(texto_volver, (self.WIDTH//2 - texto_volver.get_width()//2, self.HEIGHT//2 + 50))
-                self.screen.blit(texto_volumen, (self.WIDTH//2 - texto_volumen.get_width()//2, self.WIDTH//2 + 100))
+                self.screen.blit(texto_bienvenida, (self.WIDTH//2 - texto_bienvenida.get_width()//2, self.HEIGHT//2 - 80))
+                self.screen.blit(texto_id, (self.WIDTH//2 - texto_id.get_width()//2, self.HEIGHT//2 - 30))
+                self.screen.blit(texto_instrucciones, (self.WIDTH//2 - texto_instrucciones.get_width()//2, self.HEIGHT//2 + 20))
+                self.screen.blit(texto_volver, (self.WIDTH//2 - texto_volver.get_width()//2, self.HEIGHT//2 + 70))
                 
-                # Dibujar botón de volumen también en pantalla de juego
-                self.scene_manager.draw_volume_button(self.volume_button, self.volume_level, self.volume_muted)
+                # Dibujar control de volumen
+                self.scene_manager.draw_volume_control(
+                    self.volume_button, 
+                    self.volume_panel,
+                    self.volume_level, 
+                    self.volume_muted
+                )
                 
-                # Manejar tecla ESC para volver al menú
+                # Controles de teclado adicionales para volumen
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_ESCAPE]:
                     self.current_state = "MENU"
@@ -247,3 +319,21 @@ class Game:
         
         pygame.quit()
         sys.exit()
+    
+    def update_slider_position(self):
+        """Actualiza la posición del slider basado en el volumen actual"""
+        panel_rect = self.volume_panel["rect"]
+        slider_height = 20
+        
+        # Calcular posición Y (invertida: volumen 1.0 = arriba, volumen 0.0 = abajo)
+        slider_area_y = panel_rect.y + 30
+        slider_y = slider_area_y + (100 * (1.0 - self.volume_level)) - (slider_height // 2)
+        
+        # Asegurarse de que el slider esté dentro del área
+        slider_y = max(slider_area_y, min(slider_area_y + 100 - slider_height, slider_y))
+        
+        # Posicionar el slider (coordenadas absolutas)
+        self.volume_panel["slider"]["rect"].x = panel_rect.x + 40
+        self.volume_panel["slider"]["rect"].y = slider_y
+        self.volume_panel["slider"]["rect"].width = 20
+        self.volume_panel["slider"]["rect"].height = slider_height
