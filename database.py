@@ -3,7 +3,13 @@ import os
 
 class DatabaseManager:
     def __init__(self):
-        self.db_path = os.path.join(os.path.dirname(__file__), 'recorrido_sarmiento.db')
+        # Crear la carpeta db si no existe
+        db_dir = os.path.join(os.path.dirname(__file__), 'db')
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir)
+        
+        # Usar la base de datos en la carpeta db
+        self.db_path = os.path.join(db_dir, 'recorrido_sarmiento.db')
         self.init_database()
     
     def init_database(self):
@@ -15,7 +21,7 @@ class DatabaseManager:
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS jugadores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
+                nombre TEXT NOT NULL UNIQUE,
                 fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 ultima_partida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -36,6 +42,7 @@ class DatabaseManager:
         
         conn.commit()
         conn.close()
+        print(f"Base de datos inicializada en: {self.db_path}")
     
     def guardar_jugador(self, nombre):
         """Guarda un nuevo jugador en la base de datos"""
@@ -55,14 +62,19 @@ class DatabaseManager:
                     WHERE id = ?
                 ''', (jugador_existente[0],))
                 jugador_id = jugador_existente[0]
+                print(f"Jugador existente actualizado: {nombre} (ID: {jugador_id})")
             else:
                 # Insertar nuevo jugador
                 cursor.execute('INSERT INTO jugadores (nombre) VALUES (?)', (nombre,))
                 jugador_id = cursor.lastrowid
+                print(f"Nuevo jugador guardado: {nombre} (ID: {jugador_id})")
             
             conn.commit()
             conn.close()
             return jugador_id
+        except sqlite3.IntegrityError:
+            print(f"Error: El jugador '{nombre}' ya existe en la base de datos")
+            return None
         except Exception as e:
             print(f"Error al guardar jugador: {e}")
             return None
@@ -104,6 +116,21 @@ class DatabaseManager:
         except Exception as e:
             print(f"Error al obtener jugadores: {e}")
             return []
+    
+    def obtener_jugador_por_nombre(self, nombre):
+        """Obtiene un jugador específico por nombre"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT id, nombre FROM jugadores WHERE nombre = ?', (nombre,))
+            jugador = cursor.fetchone()
+            
+            conn.close()
+            return jugador
+        except Exception as e:
+            print(f"Error al obtener jugador por nombre: {e}")
+            return None
 
 # Instancia global de la base de datos
 db_manager = DatabaseManager()
