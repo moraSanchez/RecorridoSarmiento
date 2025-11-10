@@ -59,19 +59,19 @@ class SceneManager:
                 if os.path.exists(filepath):
                     icons[key] = pygame.image.load(filepath).convert_alpha()
                     icons[key] = pygame.transform.scale(icons[key], icon_size)
-                    print(f"✅ Icono cargado: {filename}")
+                    print(f"Icono cargado: {filename}")
                 else:
-                    print(f"❌ Archivo no encontrado: {filepath}")
+                    print(f"Archivo no encontrado: {filepath}")
                     return self.create_backup_icons()
             
-            print("✅ Todos los iconos de volumen cargados correctamente")
+            print("Todos los iconos de volumen cargados correctamente")
             return icons
             
         except pygame.error as e:
-            print(f"❌ Error al cargar iconos de volumen: {e}")
+            print(f"Error al cargar iconos de volumen: {e}")
             return self.create_backup_icons()
         except Exception as e:
-            print(f"❌ Error inesperado: {e}")
+            print(f"Error inesperado: {e}")
             return self.create_backup_icons()
     
     def create_backup_icons(self):
@@ -283,12 +283,12 @@ class SceneManager:
                 background = pygame.image.load(background_path)
                 background = pygame.transform.scale(background, (self.WIDTH, self.HEIGHT))
                 self.screen.blit(background, (0, 0))
-                print("✅ Fondo del menú cargado correctamente")
+                print("Fondo del menú cargado correctamente")
             else:
-                print(f"❌ Fondo no encontrado: {background_path}")
+                print(f"Fondo no encontrado: {background_path}")
                 self.screen.fill(self.BLACK)
         except Exception as e:
-            print(f"❌ Error al cargar fondo: {e}")
+            print(f"Error al cargar fondo: {e}")
             self.screen.fill(self.BLACK)
         
         # Botones
@@ -326,16 +326,13 @@ class SceneManager:
             self.screen.blit(text_surface, text_rect)
 
     def draw_name_input_screen(self, current_text, volume_button=None, volume_panel=None, volume_level=0.5, volume_muted=False):
-        """Dibuja la pantalla de entrada de nombre"""
         self.screen.fill(self.BLACK)
         
-        # Caja de diálogo para el nombre
         self.draw_dialogue_box(
             text=f"{current_text}|" if current_text else "|",
             character_name="INGRESA TU NOMBRE"
         )
         
-        # Instrucciones
         inst_font = pygame.font.SysFont("arial", 20)
         instructions = [
             "Escribe tu nombre y presiona ENTER para continuar",
@@ -346,12 +343,10 @@ class SceneManager:
             text_surface = inst_font.render(instruction, True, self.LIGHT_GRAY)
             self.screen.blit(text_surface, (self.WIDTH//2 - text_surface.get_width()//2, 350 + i*30))
         
-        # Control de volumen
         if volume_button and volume_panel:
             self.draw_volume_control(volume_button, volume_panel, volume_level, volume_muted)
 
     def draw_dialogue_box(self, text="", character_name=""):
-        """Dibuja la caja de diálogo"""
         box_height = 200
         box_rect = pygame.Rect(50, self.HEIGHT - box_height - 20, self.WIDTH - 100, box_height)
         
@@ -370,7 +365,6 @@ class SceneManager:
             self.render_text(text, box_rect)
 
     def render_text(self, text, box_rect):
-        """Renderiza texto con ajuste de líneas"""
         words = text.split(' ')
         lines = []
         current_line = []
@@ -395,8 +389,7 @@ class SceneManager:
                 self.screen.blit(text_surface, (box_rect.x + 20, y_pos))
                 y_pos += 35
 
-    def draw_load_game_screen(self, load_game_state, available_players, selected_index, load_buttons, volume_button, volume_panel, volume_level, volume_muted):
-        """Dibuja la pantalla de cargar partida"""
+    def draw_load_game_screen(self, load_game_state, available_players, selected_index, load_buttons, volume_button, volume_panel, volume_level, volume_muted, scroll_offset=0, visible_items=5):
         self.screen.fill(self.BLACK)
         
         # Título
@@ -407,14 +400,13 @@ class SceneManager:
         if load_game_state == "NO_SAVES":
             self.draw_no_saves_screen(load_buttons)
         elif load_game_state == "SELECT_PLAYER":
-            self.draw_player_selection_screen(available_players, selected_index, load_buttons)
+            self.draw_player_selection_screen(available_players, selected_index, load_buttons, scroll_offset, visible_items)
         
         # Control de volumen
         if volume_button and volume_panel:
             self.draw_volume_control(volume_button, volume_panel, volume_level, volume_muted)
 
     def draw_no_saves_screen(self, load_buttons):
-        """Dibuja la pantalla cuando no hay partidas guardadas"""
         warning_font = pygame.font.SysFont("arial", 36)
         warning_text = warning_font.render("¡No hay partidas guardadas!", True, self.VOLUME_MUTED)
         self.screen.blit(warning_text, (self.WIDTH//2 - warning_text.get_width()//2, 150))
@@ -429,71 +421,94 @@ class SceneManager:
             button = load_buttons[button_key]
             self.draw_load_game_button(button)
 
-    def draw_player_selection_screen(self, players, selected_index, load_buttons):
-        """Dibuja la pantalla de selección de jugador"""
+    def draw_player_selection_screen(self, players, selected_index, load_buttons, scroll_offset=0, visible_items=4):
         info_font = pygame.font.SysFont("arial", 24)
         info_text = info_font.render("Selecciona un jugador para cargar su partida", True, self.LIGHT_GRAY)
         self.screen.blit(info_text, (self.WIDTH//2 - info_text.get_width()//2, 120))
         
-        # Lista de jugadores
-        for i, player in enumerate(players):
+        list_rect = pygame.Rect(180, 160, 900, 300)
+        item_height = 70
+        visible_players = players[scroll_offset:scroll_offset + visible_items]
+
+        pygame.draw.rect(self.screen, (20, 20, 20), list_rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.BORDER_COLOR, list_rect, 2, border_radius=8)
+        
+        for i, player in enumerate(visible_players):
             player_id, name, fecha_registro, ultima_partida = player
+            actual_index = scroll_offset + i
             
-            player_rect = pygame.Rect(200, 150 + i * 80, 800, 70)
+            player_rect = pygame.Rect(list_rect.x + 10, list_rect.y + 10 + i * item_height, 
+                                     list_rect.width - 20, item_height - 4)
             
-            # Color según selección
-            if i == selected_index:
+            if actual_index == selected_index:
                 bg_color = (50, 50, 80)
                 border_color = (100, 100, 200)
             else:
                 bg_color = (30, 30, 30)
                 border_color = (60, 60, 60)
             
-            # Fondo del jugador
-            pygame.draw.rect(self.screen, bg_color, player_rect, border_radius=8)
-            pygame.draw.rect(self.screen, border_color, player_rect, 2, border_radius=8)
+            pygame.draw.rect(self.screen, bg_color, player_rect, border_radius=6)
+            pygame.draw.rect(self.screen, border_color, player_rect, 2, border_radius=6)
             
-            # Información
-            name_font = pygame.font.SysFont("arial", 28, bold=True)
-            date_font = pygame.font.SysFont("arial", 18)
             
-            # Nombre
+            name_font = pygame.font.SysFont("arial", 24, bold=True)
+            date_font = pygame.font.SysFont("arial", 16)
+            
             name_text = name_font.render(name, True, self.WHITE)
-            self.screen.blit(name_text, (player_rect.x + 20, player_rect.y + 15))
+            max_name_width = 250
+            if name_text.get_width() > max_name_width:
+                small_name_font = pygame.font.SysFont("arial", 20, bold=True)
+                name_text = small_name_font.render(name, True, self.WHITE)
             
-            # Fechas
-            reg_text = date_font.render(f"Registrado: {fecha_registro.split()[0]}", True, self.LIGHT_GRAY)
-            ult_text = date_font.render(f"Última partida: {ultima_partida.split()[0]}", True, self.LIGHT_GRAY)
+            self.screen.blit(name_text, (player_rect.x + 15, player_rect.y + 12))
             
-            self.screen.blit(reg_text, (player_rect.x + 20, player_rect.y + 45))
-            self.screen.blit(ult_text, (player_rect.x + 300, player_rect.y + 45))
+            reg_text = date_font.render(f"Registro: {fecha_registro.split()[0]}", True, self.LIGHT_GRAY)
+            ult_text = date_font.render(f"Última: {ultima_partida.split()[0]}", True, self.LIGHT_GRAY)
             
-            # Indicador de selección
-            if i == selected_index:
+            self.screen.blit(reg_text, (player_rect.x + 15, player_rect.y + 42))
+            self.screen.blit(ult_text, (player_rect.x + 180, player_rect.y + 42))
+            
+            if actual_index == selected_index:
                 selector_text = date_font.render("← SELECCIONADO", True, self.VOLUME_ACTIVE)
-                self.screen.blit(selector_text, (player_rect.x + 600, player_rect.y + 25))
+                if player_rect.x + 400 < player_rect.right - selector_text.get_width():
+                    self.screen.blit(selector_text, (player_rect.x + 350, player_rect.y + 25))
         
-        # Instrucciones
+        if len(players) > visible_items:
+            self.draw_scrollbar(list_rect, len(players), visible_items, scroll_offset)
+        
         inst_font = pygame.font.SysFont("arial", 18)
         instructions = [
-            "Usa las flechas ↑↓ para navegar • ENTER para cargar",
+            "Usa las flechas ↑↓ o la rueda del mouse para navegar • ENTER para cargar",
             f"Mostrando {len(players)} jugador(es) guardado(s)"
         ]
         
-        # Posicionar instrucciones más abajo
-        instructions_y = 150 + len(players) * 80 + 40
+        instructions_y = list_rect.y + list_rect.height + 20
         for j, instruction in enumerate(instructions):
-            inst_text = inst_font.render(instruction, True, (150, 150, 150))
+            inst_text = inst_font.render(instruction, True, (180, 180, 180))
             self.screen.blit(inst_text, (self.WIDTH//2 - inst_text.get_width()//2, instructions_y + j * 25))
         
-        # Botones
         buttons_to_draw = ["confirm_load", "back"]
         for button_key in buttons_to_draw:
             button = load_buttons[button_key]
             self.draw_load_game_button(button)
 
+    def draw_scrollbar(self, list_rect, total_items, visible_items, scroll_offset):
+        """Dibuja la barra de desplazamiento"""
+        scrollbar_width = 12
+        scrollbar_x = list_rect.x + list_rect.width - scrollbar_width - 5
+        
+        thumb_height = max(30, (visible_items / total_items) * list_rect.height)
+        thumb_position = (scroll_offset / total_items) * list_rect.height
+        
+        scroll_bg_rect = pygame.Rect(scrollbar_x, list_rect.y, scrollbar_width, list_rect.height)
+        pygame.draw.rect(self.screen, (50, 50, 50), scroll_bg_rect, border_radius=6)
+        
+        thumb_rect = pygame.Rect(scrollbar_x, list_rect.y + thumb_position, scrollbar_width, thumb_height)
+        pygame.draw.rect(self.screen, (120, 120, 120), thumb_rect, border_radius=6)
+        pygame.draw.rect(self.screen, (180, 180, 180), thumb_rect, 1, border_radius=6)
+
     def draw_load_game_button(self, button_data):
-        """Dibuja un botón para la pantalla de carga"""
+        """Dibuja un botón en la pantalla de cargar partida"""
         mouse_pos = pygame.mouse.get_pos()
         rect = button_data["rect"]
         
@@ -510,11 +525,9 @@ class SceneManager:
             text_color = self.WHITE
             border_color = self.BORDER_COLOR
         
-        # Dibujar botón
         pygame.draw.rect(self.screen, fill_color, rect, border_radius=8)
         pygame.draw.rect(self.screen, border_color, rect, 2, border_radius=8)
         
-        # Texto
         text_surface = self.button_font.render(button_data["text"], True, text_color)
         text_rect = text_surface.get_rect(center=rect.center)
         self.screen.blit(text_surface, text_rect)

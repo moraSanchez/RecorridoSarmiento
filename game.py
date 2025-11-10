@@ -6,49 +6,46 @@ from database import db_manager
 
 class Game:
     def __init__(self):
-        # Configuración de pantalla
         self.WIDTH, self.HEIGHT = 1220, 680
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Recorrido Sarmiento: Último Viaje")
         
-        # Estados del juego
         self.current_state = "MENU"
         self.player_name = ""
         self.player_id = None
         
-        # Estados para cargar partida
-        self.load_game_state = "MENU"  # MENU, NO_SAVES, SELECT_PLAYER
+        self.load_game_state = "MENU" 
         self.available_players = []
         self.selected_player_index = 0
         
-        # Managers
+        self.scroll_offset = 0
+        self.max_visible_players = 4
+        self.scroll_dragging = False
+        self.scroll_drag_start = 0
+        
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         
-        # Sonido
         self.SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "sounds")
         self.BACKGROUND_MUSIC = os.path.join(self.SOUNDS_DIR, "sonido-menu.flac")
         self.volume_level = 0.5
         self.volume_muted = False
         self.volume_pre_mute = 0.5
         
-        # Botones del menú
         self.setup_menu_buttons()
         
-        # Botones para cargar partida
         self.setup_load_game_buttons()
         
-        # Control de volumen desplegable
         self.setup_volume_control()
     
     def setup_load_game_buttons(self):
-        """Configura los botones para la pantalla de cargar partida"""
         button_width, button_height = 300, 50
         center_x = self.WIDTH // 2 - button_width // 2
         
+        # Mayor separación entre botones
         self.load_game_buttons = {
             "back": {
                 "text": "Volver al Menú",
-                "rect": pygame.Rect(center_x, 580, button_width, button_height),
+                "rect": pygame.Rect(center_x, 600, button_width, button_height),
                 "clicked": False
             },
             "new_game": {
@@ -58,7 +55,7 @@ class Game:
             },
             "confirm_load": {
                 "text": "Cargar Partida Seleccionada",
-                "rect": pygame.Rect(center_x, 530, button_width, button_height),
+                "rect": pygame.Rect(center_x, 540, button_width, button_height), 
                 "clicked": False
             }
         }
@@ -68,7 +65,6 @@ class Game:
         button_size = 45
         margin = 20
         
-        # Botón principal de volumen
         self.volume_button = {
             "rect": pygame.Rect(self.WIDTH - button_size - margin, margin, button_size, button_size),
             "center": (self.WIDTH - button_size - margin + button_size//2, margin + button_size//2),
@@ -77,7 +73,6 @@ class Game:
             "hover": False
         }
         
-        # Panel desplegable
         self.volume_panel = {
             "visible": False,
             "rect": pygame.Rect(self.WIDTH - 110, 70, 100, 180),
@@ -101,24 +96,33 @@ class Game:
     def check_saved_games(self):
         """Verifica si hay partidas guardadas y actualiza el estado"""
         self.available_players = db_manager.obtener_todos_los_jugadores()
+        self.scroll_offset = 0 
+        self.selected_player_index = 0  
         
         if not self.available_players:
             self.load_game_state = "NO_SAVES"
             print("No hay partidas guardadas")
         else:
             self.load_game_state = "SELECT_PLAYER"
-            self.selected_player_index = 0
             print(f"Se encontraron {len(self.available_players)} jugadores")
     
     def handle_load_game_events(self, event):
-        """Maneja eventos en la pantalla de cargar partida"""
         if self.handle_volume_events(event):
             return True
             
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             
-            # Manejar botones según el estado
+            if self.load_game_state == "SELECT_PLAYER" and len(self.available_players) > self.max_visible_players:
+                list_rect = pygame.Rect(200, 150, 800, 350)
+                scrollbar_x = list_rect.x + list_rect.width - 12 - 5
+                
+                scroll_rect = pygame.Rect(scrollbar_x, list_rect.y, 12, list_rect.height)
+                if scroll_rect.collidepoint(mouse_pos):
+                    self.scroll_dragging = True
+                    self.scroll_drag_start = mouse_pos[1]
+                    return True
+            
             if self.load_game_state == "NO_SAVES":
                 if self.load_game_buttons["back"]["rect"].collidepoint(mouse_pos):
                     self.load_game_buttons["back"]["clicked"] = True
@@ -135,17 +139,20 @@ class Game:
                     self.load_game_buttons["confirm_load"]["clicked"] = True
                     return True
                 
-                # Selección de jugador con clic
-                for i, player in enumerate(self.available_players):
-                    player_rect = pygame.Rect(200, 150 + i * 80, 800, 70)
+                list_rect = pygame.Rect(200, 100, 800, 350)
+                for i, player in enumerate(self.available_players[self.scroll_offset:self.scroll_offset + self.max_visible_players]):
+                    actual_index = self.scroll_offset + i
+                    player_rect = pygame.Rect(200 + 10, 150 + 10 + i * 70, 800 - 20, 60)
                     if player_rect.collidepoint(mouse_pos):
-                        self.selected_player_index = i
+                        self.selected_player_index = actual_index
                         return True
         
         elif event.type == pygame.MOUSEBUTTONUP:
             # Resetear todos los botones
             for button in self.load_game_buttons.values():
                 button["clicked"] = False
+            
+            self.scroll_dragging = False
             
             # Manejar acciones al soltar el clic
             if self.load_game_state == "NO_SAVES":
@@ -164,20 +171,73 @@ class Game:
                     self.load_selected_game()
                     return True
         
+        elif event.type == pygame.MOUSEMOTION:
+            if self.scroll_dragging and self.load_game_state == "SELECT_PLAYER":
+                mouse_pos = pygame.mouse.get_pos()
+                list_rect = pygame.Rect(200, 150, 800, 350)
+                mouse_y = mouse_pos[1]
+                
+                drag_distance = mouse_y - self.scroll_drag_start
+                max_scroll = len(self.available_players) - self.max_visible_players
+                
+                pixels_per_item = list_rect.height / len(self.available_players)
+                scroll_change = int(drag_distance / pixels_per_item)
+                
+                new_offset = max(0, min(max_scroll, self.scroll_offset + scroll_change))
+                if new_offset != self.scroll_offset:
+                    self.scroll_offset = new_offset
+                    self.scroll_drag_start = mouse_y
+                return True
+        
+        elif event.type == pygame.MOUSEWHEEL:
+            if self.load_game_state == "SELECT_PLAYER" and len(self.available_players) > self.max_visible_players:
+                max_scroll = max(0, len(self.available_players) - self.max_visible_players)
+                self.scroll_offset = max(0, min(
+                    self.scroll_offset - event.y,  
+                    max_scroll
+                ))
+                return True
+        
         # Navegación con teclado
         elif event.type == pygame.KEYDOWN:
             if self.load_game_state == "SELECT_PLAYER":
                 if event.key == pygame.K_UP and self.selected_player_index > 0:
                     self.selected_player_index -= 1
+                    # Ajustar scroll si es necesario
+                    if self.selected_player_index < self.scroll_offset:
+                        self.scroll_offset = self.selected_player_index
                     return True
                 elif event.key == pygame.K_DOWN and self.selected_player_index < len(self.available_players) - 1:
                     self.selected_player_index += 1
+                    # Ajustar scroll si es necesario
+                    if self.selected_player_index >= self.scroll_offset + self.max_visible_players:
+                        self.scroll_offset = self.selected_player_index - self.max_visible_players + 1
                     return True
                 elif event.key == pygame.K_RETURN:
                     self.load_selected_game()
                     return True
                 elif event.key == pygame.K_ESCAPE:
                     self.current_state = "MENU"
+                    return True
+                elif event.key == pygame.K_PAGEUP:
+                    # Navegación por página
+                    self.selected_player_index = max(0, self.selected_player_index - self.max_visible_players)
+                    self.scroll_offset = max(0, self.scroll_offset - self.max_visible_players)
+                    return True
+                elif event.key == pygame.K_PAGEDOWN:
+                    # Navegación por página
+                    self.selected_player_index = min(len(self.available_players) - 1, self.selected_player_index + self.max_visible_players)
+                    self.scroll_offset = min(len(self.available_players) - self.max_visible_players, self.scroll_offset + self.max_visible_players)
+                    return True
+                elif event.key == pygame.K_HOME:
+                    # Ir al principio
+                    self.selected_player_index = 0
+                    self.scroll_offset = 0
+                    return True
+                elif event.key == pygame.K_END:
+                    # Ir al final
+                    self.selected_player_index = len(self.available_players) - 1
+                    self.scroll_offset = max(0, len(self.available_players) - self.max_visible_players)
                     return True
         
         return False
@@ -388,6 +448,7 @@ class Game:
             print("No hay partidas guardadas en la base de datos")
     
     def run(self):
+        """Método principal que ejecuta el bucle del juego"""
         self.play_background_music()
         
         clock = pygame.time.Clock()
@@ -406,10 +467,6 @@ class Game:
                     self.handle_load_game_events(event)
                 elif self.current_state == "PLAYING":
                     self.handle_volume_events(event)
-            
-            # Actualizar posición del slider basado en el volumen actual
-            if not self.volume_panel["slider"]["dragging"]:
-                self.update_slider_position()
             
             # Dibujar según el estado actual
             if self.current_state == "MENU":
@@ -437,7 +494,9 @@ class Game:
                     self.volume_button,
                     self.volume_panel,
                     self.volume_level,
-                    self.volume_muted
+                    self.volume_muted,
+                    self.scroll_offset,
+                    self.max_visible_players
                 )
             elif self.current_state == "PLAYING":
                 self.screen.fill((0, 0, 0))
@@ -473,12 +532,6 @@ class Game:
         
         pygame.quit()
         sys.exit()
-    
-    def update_slider_position(self):
-        """Actualiza la posición del slider basado en el volumen actual"""
-        # Esta función se mantiene para compatibilidad
-        # La posición real se calcula en tiempo real en draw_modern_volume_bar
-        pass
 
 # Ejecutar el juego
 if __name__ == "__main__":
