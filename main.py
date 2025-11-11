@@ -1,6 +1,6 @@
 # main.py
 import pygame
-from game import Game
+from core.game import Game
 
 pygame.init()
 pygame.mixer.init()
