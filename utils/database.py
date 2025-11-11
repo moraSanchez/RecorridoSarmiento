@@ -1,10 +1,11 @@
+# utils/database.py
 import sqlite3
 import os
 
 class DatabaseManager:
     def __init__(self):
         # Crear la carpeta db si no existe
-        db_dir = os.path.join(os.path.dirname(__file__), 'db')
+        db_dir = os.path.join(os.path.dirname(__file__), "..", "db")
         if not os.path.exists(db_dir):
             os.makedirs(db_dir)
         
