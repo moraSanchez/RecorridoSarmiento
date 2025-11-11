@@ -21,9 +21,10 @@ class SceneManager:
         self.NAME_BOX = (17, 17, 17)
         self.BORDER_COLOR = (35, 35, 35)
 
-        # Cargar imágenes de iconos de volumen
+        # Cargar imágenes UNA SOLA VEZ
         self.IMG_DIR = os.path.join(os.path.dirname(__file__), "..", "img")
         self.volume_icons = self.load_volume_icons()
+        self.menu_background = self.load_menu_background()  # Cargar fondo una vez
 
         # Fuentes
         self.button_font = pygame.font.SysFont("arial", 24)
@@ -32,8 +33,26 @@ class SceneManager:
         self.small_font = pygame.font.SysFont("arial", 14)
         self.volume_font = pygame.font.SysFont("arial", 12, bold=True)
 
+    def load_menu_background(self):
+        """Carga el fondo del menú UNA SOLA VEZ"""
+        try:
+            background_path = os.path.join(self.IMG_DIR, "menu-inicio.png")
+            print(f"Intentando cargar fondo: {background_path}")
+            
+            if os.path.exists(background_path):
+                background = pygame.image.load(background_path)
+                background = pygame.transform.scale(background, (self.WIDTH, self.HEIGHT))
+                print("Fondo del menú cargado correctamente (una sola vez)")
+                return background
+            else:
+                print(f"Fondo no encontrado: {background_path}")
+                return None
+        except Exception as e:
+            print(f"Error al cargar fondo: {e}")
+            return None
+
     def load_volume_icons(self):
-        """Carga las imágenes de los iconos de volumen"""
+        """Carga las imágenes de los iconos de volumen UNA SOLA VEZ"""
         icons = {}
         try:
             icon_size = (30, 30)
@@ -63,7 +82,7 @@ class SceneManager:
                     print(f"Archivo no encontrado: {filepath}")
                     return self.create_backup_icons()
 
-            print("Todos los iconos de volumen cargados correctamente")
+            print("Todos los iconos de volumen cargados correctamente (una sola vez)")
             return icons
 
         except pygame.error as e:
@@ -244,21 +263,11 @@ class SceneManager:
                           handle_radius // 3)
 
     def draw_menu(self, buttons, volume_button=None, volume_panel=None, volume_level=0.5, volume_muted=False):
-        """Dibuja la pantalla del menú principal"""
-        try:
-            background_path = os.path.join(self.IMG_DIR, "menu-inicio.png")
-            print(f"Intentando cargar fondo: {background_path}")
-
-            if os.path.exists(background_path):
-                background = pygame.image.load(background_path)
-                background = pygame.transform.scale(background, (self.WIDTH, self.HEIGHT))
-                self.screen.blit(background, (0, 0))
-                print("Fondo del menú cargado correctamente")
-            else:
-                print(f"Fondo no encontrado: {background_path}")
-                self.screen.fill(self.BLACK)
-        except Exception as e:
-            print(f"Error al cargar fondo: {e}")
+        """Dibuja la pantalla del menú principal (SIN cargar imagen cada vez)"""
+        # Usar el fondo ya cargado
+        if self.menu_background:
+            self.screen.blit(self.menu_background, (0, 0))
+        else:
             self.screen.fill(self.BLACK)
 
         self.draw_buttons(buttons)
