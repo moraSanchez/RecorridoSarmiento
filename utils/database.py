@@ -2,106 +2,91 @@
 import sqlite3
 import os
 
-class DatabaseManager:
+class Database:
     def __init__(self):
-        # Crear la carpeta db si no existe
-        db_dir = os.path.join(os.path.dirname(__file__), "..", "db")
+        # CORREGIDO: Usar el nombre exacto de tu base de datos
+        self.db_path = os.path.join(os.path.dirname(__file__), "..", "db", "recorrido_sarmiento.db")
+        self.ensure_db_directory()
+        # ELIMINADO: No llamar a init_db automáticamente para no crear tablas nuevas
+        print(f"Ruta de la base de datos: {self.db_path}")
+
+    def ensure_db_directory(self):
+        """Asegura que el directorio de la base de datos exista"""
+        db_dir = os.path.dirname(self.db_path)
         if not os.path.exists(db_dir):
             os.makedirs(db_dir)
-        
-        # Usar la base de datos en la carpeta db
-        self.db_path = os.path.join(db_dir, 'recorrido_sarmiento.db')
-        self.init_database()
-    
-    def init_database(self):
-        """Inicializa la base de datos y crea las tablas si no existen"""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        
-        # Tabla de jugadores
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS jugadores (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL UNIQUE,
-                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                ultima_partida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Tabla de partidas guardadas (para futuras expansiones)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS partidas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                jugador_id INTEGER,
-                escena_actual TEXT,
-                progreso TEXT,
-                objetos_obtenidos TEXT,
-                fecha_guardado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (jugador_id) REFERENCES jugadores (id)
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
-        print(f"Base de datos inicializada en: {self.db_path}")
-    
-    def guardar_jugador(self, nombre):
-        """Guarda un nuevo jugador en la base de datos"""
+            print(f"Directorio de BD creado: {db_dir}")
+
+    def check_table_exists(self):
+        """Verifica si la tabla existe sin crearla"""
         try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='jugadores'")
+            table_exists = cursor.fetchone()
+            conn.close()
+            return table_exists is not None
+        except Exception as e:
+            print(f"Error al verificar tabla: {e}")
+            return False
+
+    def guardar_jugador(self, nombre):
+        """Guarda un nuevo jugador o actualiza la fecha de última partida si ya existe"""
+        try:
+            # Verificar primero si la base de datos y tabla existen
+            if not os.path.exists(self.db_path):
+                print("ERROR: La base de datos no existe")
+                return None
+                
+            if not self.check_table_exists():
+                print("ERROR: La tabla 'jugadores' no existe en la base de datos")
+                return None
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
             # Verificar si el jugador ya existe
             cursor.execute('SELECT id FROM jugadores WHERE nombre = ?', (nombre,))
-            jugador_existente = cursor.fetchone()
+            existing_player = cursor.fetchone()
             
-            if jugador_existente:
+            if existing_player:
                 # Actualizar fecha de última partida
                 cursor.execute('''
                     UPDATE jugadores 
                     SET ultima_partida = CURRENT_TIMESTAMP 
                     WHERE id = ?
-                ''', (jugador_existente[0],))
-                jugador_id = jugador_existente[0]
-                print(f"Jugador existente actualizado: {nombre} (ID: {jugador_id})")
+                ''', (existing_player[0],))
+                player_id = existing_player[0]
+                print(f"Jugador existente actualizado: {nombre} (ID: {player_id})")
             else:
                 # Insertar nuevo jugador
-                cursor.execute('INSERT INTO jugadores (nombre) VALUES (?)', (nombre,))
-                jugador_id = cursor.lastrowid
-                print(f"Nuevo jugador guardado: {nombre} (ID: {jugador_id})")
+                cursor.execute('''
+                    INSERT INTO jugadores (nombre) 
+                    VALUES (?)
+                ''', (nombre,))
+                player_id = cursor.lastrowid
+                print(f"Nuevo jugador guardado: {nombre} (ID: {player_id})")
             
             conn.commit()
             conn.close()
-            return jugador_id
-        except sqlite3.IntegrityError:
-            print(f"Error: El jugador '{nombre}' ya existe en la base de datos")
-            return None
+            return player_id
+            
         except Exception as e:
             print(f"Error al guardar jugador: {e}")
             return None
-    
-    def obtener_ultimo_jugador(self):
-        """Obtiene el último jugador registrado"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                SELECT nombre FROM jugadores 
-                ORDER BY ultima_partida DESC 
-                LIMIT 1
-            ''')
-            resultado = cursor.fetchone()
-            
-            conn.close()
-            return resultado[0] if resultado else None
-        except Exception as e:
-            print(f"Error al obtener último jugador: {e}")
-            return None
-    
+
     def obtener_todos_los_jugadores(self):
-        """Obtiene todos los jugadores registrados (para cargar partidas)"""
+        """Obtiene todos los jugadores ordenados por última partida"""
         try:
+            # Verificar primero si la base de datos y tabla existen
+            if not os.path.exists(self.db_path):
+                print("ERROR: La base de datos no existe")
+                return []
+                
+            if not self.check_table_exists():
+                print("ERROR: La tabla 'jugadores' no existe en la base de datos")
+                return []
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
@@ -110,28 +95,45 @@ class DatabaseManager:
                 FROM jugadores 
                 ORDER BY ultima_partida DESC
             ''')
-            jugadores = cursor.fetchall()
             
+            players = cursor.fetchall()
             conn.close()
-            return jugadores
+            return players
+            
         except Exception as e:
             print(f"Error al obtener jugadores: {e}")
             return []
-    
-    def obtener_jugador_por_nombre(self, nombre):
-        """Obtiene un jugador específico por nombre"""
+
+    def eliminar_jugador(self, player_id):
+        """Elimina un jugador de la base de datos"""
         try:
+            # Verificar primero si la base de datos y tabla existen
+            if not os.path.exists(self.db_path):
+                print("ERROR: La base de datos no existe")
+                return False
+                
+            if not self.check_table_exists():
+                print("ERROR: La tabla 'jugadores' no existe en la base de datos")
+                return False
+
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
-            cursor.execute('SELECT id, nombre FROM jugadores WHERE nombre = ?', (nombre,))
-            jugador = cursor.fetchone()
+            cursor.execute('DELETE FROM jugadores WHERE id = ?', (player_id,))
             
+            conn.commit()
             conn.close()
-            return jugador
+            
+            if cursor.rowcount > 0:
+                print(f"Jugador con ID {player_id} eliminado correctamente")
+                return True
+            else:
+                print(f"No se encontró jugador con ID {player_id}")
+                return False
+                
         except Exception as e:
-            print(f"Error al obtener jugador por nombre: {e}")
-            return None
+            print(f"Error al eliminar jugador: {e}")
+            return False
 
-# Instancia global de la base de datos
-db_manager = DatabaseManager()
+# Instancia global para usar en todo el proyecto
+db_manager = Database()

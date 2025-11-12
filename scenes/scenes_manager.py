@@ -1,4 +1,4 @@
-# scenes/scene_manager.py
+# scenes/scenes_manager.py
 import pygame
 import os
 
@@ -24,7 +24,7 @@ class SceneManager:
         # Cargar imágenes UNA SOLA VEZ
         self.IMG_DIR = os.path.join(os.path.dirname(__file__), "..", "img")
         self.volume_icons = self.load_volume_icons()
-        self.menu_background = self.load_menu_background()  # Cargar fondo una vez
+        self.menu_background = self.load_menu_background()
 
         # Fuentes
         self.button_font = pygame.font.SysFont("arial", 24)
@@ -82,7 +82,7 @@ class SceneManager:
                     print(f"Archivo no encontrado: {filepath}")
                     return self.create_backup_icons()
 
-            print("Todos los iconos de volumen cargados correctamente (una sola vez)")
+            print("Todos los iconos de volumen cargados correctamente")
             return icons
 
         except pygame.error as e:
@@ -263,8 +263,7 @@ class SceneManager:
                           handle_radius // 3)
 
     def draw_menu(self, buttons, volume_button=None, volume_panel=None, volume_level=0.5, volume_muted=False):
-        """Dibuja la pantalla del menú principal (SIN cargar imagen cada vez)"""
-        # Usar el fondo ya cargado
+        """Dibuja la pantalla del menú principal"""
         if self.menu_background:
             self.screen.blit(self.menu_background, (0, 0))
         else:
@@ -393,9 +392,8 @@ class SceneManager:
         info_text = info_font.render("Crea una nueva partida para comenzar tu aventura", True, self.LIGHT_GRAY)
         self.screen.blit(info_text, (self.WIDTH//2 - info_text.get_width()//2, 220))
 
-        buttons_to_draw = ["new_game", "back"]
-        for button_key in buttons_to_draw:
-            button = load_buttons[button_key]
+        # Dibujar todos los botones del estado NO_SAVES
+        for button_key, button in load_buttons.items():
             self.draw_load_game_button(button)
 
     def draw_player_selection_screen(self, players, selected_index, load_buttons, scroll_offset=0, visible_items=4):
@@ -466,7 +464,7 @@ class SceneManager:
         # Instrucciones
         inst_font = pygame.font.SysFont("arial", 18)
         instructions = [
-            "Usa las flechas ↑↓ o la rueda del mouse para navegar • ENTER para cargar",
+            "Usa las flechas ↑↓ o la rueda del mouse para navegar • ENTER para cargar • DELETE para borrar",
             f"Mostrando {len(players)} jugador(es) guardado(s)"
         ]
 
@@ -475,10 +473,8 @@ class SceneManager:
             inst_text = inst_font.render(instruction, True, (180, 180, 180))
             self.screen.blit(inst_text, (self.WIDTH//2 - inst_text.get_width()//2, instructions_y + j * 25))
 
-        # Botones
-        buttons_to_draw = ["confirm_load", "back"]
-        for button_key in buttons_to_draw:
-            button = load_buttons[button_key]
+        # Dibujar todos los botones del estado SELECT_PLAYER
+        for button_key, button in load_buttons.items():
             self.draw_load_game_button(button)
 
     def draw_scrollbar(self, list_rect, total_items, visible_items, scroll_offset):
