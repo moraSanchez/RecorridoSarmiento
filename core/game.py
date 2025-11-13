@@ -1,4 +1,4 @@
-# core/game.py
+# core/game.py hola agus :v
 import pygame
 import os
 import sys
