@@ -1,4 +1,4 @@
-# core/game.py hola agus :v
+# core/game.py
 import pygame
 import os
 import sys
@@ -6,25 +6,24 @@ from scenes.scenes_manager import SceneManager
 from utils.database import db_manager
 from ui.volume_control import VolumeControl
 from scenes.load_game import LoadGameScene
+from scenes.dialogue_manager import DialogueManager
+from scenes.dialogues import SCENES  
 
 class Game:
     def __init__(self):
-        # Configuración de pantalla
         self.WIDTH, self.HEIGHT = 1220, 680
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Recorrido Sarmiento: Último Viaje")
 
-        # Estados del juego
         self.current_state = "MENU"
         self.player_name = ""
         self.player_id = None
 
-        # Managers
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         self.volume_control = VolumeControl(self.WIDTH, self.HEIGHT)
         self.load_game_scene = LoadGameScene(self)
+        self.dialogue_manager = DialogueManager(self.screen, self.WIDTH, self.HEIGHT)
 
-        # Botones del menú
         self.setup_menu_buttons()
 
     def setup_menu_buttons(self):
@@ -39,7 +38,6 @@ class Game:
         ]
 
     def handle_menu_events(self, event):
-        """Maneja eventos en el estado MENU"""
         if self.volume_control.handle_events(event):
             return
 
@@ -65,7 +63,6 @@ class Game:
                 button["clicked"] = False
 
     def handle_name_input_events(self, event):
-        """Maneja eventos en el estado ENTER_NAME"""
         if self.volume_control.handle_events(event):
             return
 
@@ -75,10 +72,9 @@ class Game:
                 self.player_name = ""
             elif event.key == pygame.K_RETURN:
                 if self.player_name.strip():
-                    print(f"Nombre ingresado: {self.player_name}")
                     self.player_id = db_manager.guardar_jugador(self.player_name.strip())
                     if self.player_id:
-                        print(f"Jugador guardado en BD con ID: {self.player_id}")
+                        self.dialogue_manager.load_scene(SCENES["first_scene"], self.player_name)
                         self.current_state = "PLAYING"
                     else:
                         print("Error al guardar el jugador en la base de datos")
@@ -87,6 +83,32 @@ class Game:
             else:
                 if len(self.player_name) < 20 and event.unicode.isprintable():
                     self.player_name += event.unicode
+
+    def handle_playing_events(self, event):
+        if self.volume_control.handle_events(event):
+            return
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.current_state = "MENU"
+                self.player_name = ""
+                self.player_id = None
+            elif event.key == pygame.K_SPACE:
+                result = self.dialogue_manager.advance_dialogue()
+                if result == "scene_end":
+                    self._handle_scene_end()
+            elif event.key == pygame.K_RETURN:
+                self.dialogue_manager.skip_to_end()
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  
+                result = self.dialogue_manager.advance_dialogue()
+                if result == "scene_end":
+                    self._handle_scene_end()
+
+    def _handle_scene_end(self):
+        """Maneja el final de una escena"""
+        self.current_state = "MENU"
 
     def run(self):
         """Método principal que ejecuta el bucle del juego"""
@@ -107,9 +129,8 @@ class Game:
                 elif self.current_state == "LOAD_GAME":
                     self.load_game_scene.handle_events(event)
                 elif self.current_state == "PLAYING":
-                    self.volume_control.handle_events(event)
+                    self.handle_playing_events(event)
 
-            # Dibujar según el estado actual
             volume_data = self.volume_control.get_volume_data()
             
             if self.current_state == "MENU":
@@ -131,33 +152,14 @@ class Game:
             elif self.current_state == "LOAD_GAME":
                 self.load_game_scene.draw(volume_data)
             elif self.current_state == "PLAYING":
-                self.screen.fill((0, 0, 0))
-                font = pygame.font.SysFont("arial", 36)
-
-                texto_bienvenida = font.render(f"¡Bienvenido, {self.player_name}!", True, (255, 255, 255))
-                texto_id = font.render(f"ID en BD: {self.player_id}", True, (200, 200, 200))
-                texto_instrucciones = font.render("El juego está en desarrollo...", True, (180, 180, 180))
-                texto_volver = font.render("Presiona ESC para volver al menú", True, (150, 150, 150))
-
-                self.screen.blit(texto_bienvenida, (self.WIDTH//2 - texto_bienvenida.get_width()//2, self.HEIGHT//2 - 80))
-                self.screen.blit(texto_id, (self.WIDTH//2 - texto_id.get_width()//2, self.HEIGHT//2 - 30))
-                self.screen.blit(texto_instrucciones, (self.WIDTH//2 - texto_instrucciones.get_width()//2, self.HEIGHT//2 + 20))
-                self.screen.blit(texto_volver, (self.WIDTH//2 - texto_volver.get_width()//2, self.HEIGHT//2 + 70))
-
-                # Dibujar control de volumen
+                self.dialogue_manager.draw()
+                
                 self.scene_manager.draw_volume_control(
                     volume_data["volume_button"], 
                     volume_data["volume_panel"],
                     volume_data["volume_level"], 
                     volume_data["volume_muted"]
                 )
-
-                # Controles de teclado adicionales para volumen
-                keys = pygame.key.get_pressed()
-                if keys[pygame.K_ESCAPE]:
-                    self.current_state = "MENU"
-                    self.player_name = ""
-                    self.player_id = None
 
             pygame.display.flip()
             clock.tick(60)

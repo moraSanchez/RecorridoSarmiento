@@ -36,7 +36,6 @@ class VolumeControl:
                 pygame.mixer.music.load(self.BACKGROUND_MUSIC)
                 pygame.mixer.music.set_volume(self.volume_level)
                 pygame.mixer.music.play(-1)
-                print("Música de fondo reproducida correctamente")
             else:
                 print(f"Archivo de música no encontrado: {self.BACKGROUND_MUSIC}")
         except pygame.error as e:
@@ -44,7 +43,6 @@ class VolumeControl:
     
     def update_volume(self):
         pygame.mixer.music.set_volume(self.volume_level)
-        print(f"Volumen actualizado: {int(self.volume_level * 100)}%")
     
     def toggle_mute(self):
         if self.volume_muted:

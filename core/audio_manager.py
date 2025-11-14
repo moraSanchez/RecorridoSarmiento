@@ -13,25 +13,21 @@ class AudioManager:
         pygame.mixer.init()
     
     def play_background_music(self):
-        """Reproduce la música de fondo en loop"""
         try:
             if os.path.exists(self.BACKGROUND_MUSIC):
                 pygame.mixer.music.load(self.BACKGROUND_MUSIC)
                 pygame.mixer.music.set_volume(self.volume_level)
                 pygame.mixer.music.play(-1)
-                print("Música de fondo reproducida correctamente")
             else:
                 print(f"Archivo de música no encontrado: {self.BACKGROUND_MUSIC}")
         except pygame.error as e:
             print(f"Error al reproducir música: {e}")
     
     def update_volume(self):
-        """Actualiza el volumen de la música"""
         pygame.mixer.music.set_volume(self.volume_level)
         print(f"Volumen actualizado: {int(self.volume_level * 100)}%")
     
     def toggle_mute(self):
-        """Alternar entre muteado y no muteado"""
         if self.volume_muted:
             self.volume_level = self.volume_pre_mute
             self.volume_muted = False
@@ -42,7 +38,6 @@ class AudioManager:
         self.update_volume()
     
     def set_volume(self, volume):
-        """Establece el volumen a un valor específico"""
         self.volume_level = max(0.0, min(1.0, volume))
         if self.volume_muted and self.volume_level > 0:
             self.volume_muted = False
