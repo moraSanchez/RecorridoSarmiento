@@ -84,6 +84,11 @@ class Game:
         if self.volume_control.handle_events(event):
             return
 
+        # NUEVO: Manejar elecciones primero
+        if self.dialogue_manager.showing_choice:
+            if self.dialogue_manager.handle_choice_events(event):
+                return
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 # Detener todos los sonidos al volver al menú
@@ -92,17 +97,23 @@ class Game:
                 self.player_name = ""
                 self.player_id = None
             elif event.key == pygame.K_SPACE:
-                result = self.dialogue_manager.advance_dialogue()
-                if result == "scene_end":
-                    self._handle_scene_end()
+                # No permitir avanzar durante elecciones
+                if not self.dialogue_manager.showing_choice:
+                    result = self.dialogue_manager.advance_dialogue()
+                    if result == "scene_end":
+                        self._handle_scene_end()
             elif event.key == pygame.K_RETURN:
-                self.dialogue_manager.skip_to_end()
+                # No permitir saltar durante elecciones
+                if not self.dialogue_manager.showing_choice:
+                    self.dialogue_manager.skip_to_end()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  
-                result = self.dialogue_manager.advance_dialogue()
-                if result == "scene_end":
-                    self._handle_scene_end()
+                # Si hay elección, el manejo ya se hizo arriba
+                if not self.dialogue_manager.showing_choice:
+                    result = self.dialogue_manager.advance_dialogue()
+                    if result == "scene_end":
+                        self._handle_scene_end()
 
     def _handle_scene_end(self):
         if self.dialogue_manager.current_scene:
