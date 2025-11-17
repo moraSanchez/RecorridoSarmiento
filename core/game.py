@@ -18,6 +18,7 @@ class Game:
         self.current_state = "MENU"
         self.player_name = ""
         self.player_id = None
+        self.completed_scenes = set()  # Para evitar loops
 
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         self.volume_control = VolumeControl(self.WIDTH, self.HEIGHT)
@@ -84,7 +85,7 @@ class Game:
         if self.volume_control.handle_events(event):
             return
 
-        # NUEVO: Manejar elecciones primero
+        # Manejar elecciones primero
         if self.dialogue_manager.showing_choice:
             if self.dialogue_manager.handle_choice_events(event):
                 return
@@ -96,6 +97,7 @@ class Game:
                 self.current_state = "MENU"
                 self.player_name = ""
                 self.player_id = None
+                self.completed_scenes.clear()  # Limpiar escenas completadas
             elif event.key == pygame.K_SPACE:
                 # No permitir avanzar durante elecciones
                 if not self.dialogue_manager.showing_choice:
@@ -119,14 +121,32 @@ class Game:
         if self.dialogue_manager.current_scene:
             scene_id = self.dialogue_manager.current_scene["id"]
             
+            # Marcar escena como completada
+            self.completed_scenes.add(scene_id)
+            print(f"Escena completada: {scene_id}")  # Debug
+            
             if scene_id == "first_scene":
                 self.dialogue_manager.load_scene(SCENES["second_scene"], self.player_name)
                 self.current_state = "PLAYING"
             elif scene_id == "second_scene":
                 self.dialogue_manager.load_scene(SCENES["third_scene"], self.player_name)
                 self.current_state = "PLAYING"
+            elif scene_id in ["third_scene", "third_scene_choice"]:
+                # CORRECCIÓN: Solo cargar cuarta escena si no se completó antes
+                if "fourth_scene" not in self.completed_scenes:
+                    self.dialogue_manager.load_scene(SCENES["fourth_scene"], self.player_name)
+                    self.current_state = "PLAYING"
+                else:
+                    # Si ya completamos la cuarta escena, volver al menú
+                    print("Todas las escenas completadas, volviendo al menú")
+                    self.current_state = "MENU"
+            elif scene_id == "fourth_scene":
+                # Después de la cuarta escena, volver al menú
+                print("Cuarta escena completada, volviendo al menú")
+                self.current_state = "MENU"
             else:
-                # Para cualquier otra escena (incluyendo la tercera), volver al menú
+                # Para cualquier otra escena no reconocida, volver al menú
+                print(f"Escena {scene_id} no reconocida, volviendo al menú")
                 self.current_state = "MENU"
 
     def run(self):

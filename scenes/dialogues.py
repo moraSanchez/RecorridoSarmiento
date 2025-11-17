@@ -1,6 +1,6 @@
 # scenes/dialogues.py
-
 # Definición de las escenas y diálogos del juego
+
 FIRST_SCENE = {
     "id": "first_scene",
     "lines": [
@@ -76,12 +76,12 @@ THIRD_SCENE = {
                         "text": "Buenas noches."
                     },
                     {
-                        "character": "???",
+                        "character": "Linyera",
                         "background": "linyera.jpg",
                         "text": "..."
                     },
                     {
-                        "character": "???",
+                        "character": "Linyera",
                         "background": "linyera.jpg", 
                         "text": "Noches buenas no hay en este tren, pibe. Solo noches."
                     },
@@ -96,7 +96,7 @@ THIRD_SCENE = {
                         "text": "(Me voy a otro vagon, por las dudas.)"
                     },
                     {
-                        "character": "???",
+                        "character": "Linyera",
                         "background": "linyera.jpg",
                         "text": "..."
                     },
@@ -126,7 +126,7 @@ THIRD_SCENE = {
                         "text": "(Me siento mas adelante, aca puedo mantener distancia y mantenerlo a la vista a la vez...)"
                     },
                     {
-                        "character": "???",
+                        "character": "Linyera",
                         "background": "linyera.jpg",
                         "text": "Los que no saludan son los que más rápido se pierden..."
                     },
@@ -146,10 +146,72 @@ THIRD_SCENE = {
     }
 }
 
-
+# Cuarta Escena - Diálogo con el Linyera
+FOURTH_SCENE = {
+    "id": "fourth_scene",
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.3,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Vos no tendrías que estar acá, pibe. Este no es tu tren."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background.train.jpg",
+            "text": "¿Cómo que no es mi tren? Es el Sarmiento, voy hasta Merlo."
+        },
+        {
+            "character": "Linyera", 
+            "background": "linyera.jpg",
+            "text": "Merlo... ja. Este tren no para en Merlo hace años. Ni en ninguna estación que vos conozcas. Aunque bueno, no se si es peor esto o Merlo."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background.train.jpg",
+            "text": "¿Está borracho? Claramente estamos parando en estaciones, esta pirado."
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Esas no son estaciones, pibe. Son... recuerdos. Y algunos recuerdos te persiguen."
+        },
+        {
+            "character": "",
+            "background": "background.train.jpg",
+            "sound": "train-brake.mp3",
+            "text": "El tren frena bruscamente en una estación oscura"
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg", 
+            "text": "Ahí tenés una. Mirá bien quién baja... y quién sube."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background.train.jpg",
+            "text": "Merlo. Solo tengo que llegar a Merlo. Este tipo está claramente drogado o alcoholizado."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background.train.jpg",
+            "text": "Aunque... ahora que lo pienso, el tren no hizo el anuncio de próxima estación. Y esa estación de afuera... no tiene cartel con el nombre."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background.train.jpg",
+            "text": "¿Por qué siento un ambiente tan denso en el vagón?"
+        }
+    ]
+}
 
 SCENES = {
     "first_scene": FIRST_SCENE,
     "second_scene": SECOND_SCENE,
-    "third_scene": THIRD_SCENE
+    "third_scene": THIRD_SCENE,
+    "fourth_scene": FOURTH_SCENE
 }

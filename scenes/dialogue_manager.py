@@ -246,8 +246,19 @@ class DialogueManager:
                             if line["character"] == "[PLAYER_NAME]":
                                 line["character"] = self.player_name
                     
-                    # Reemplazar las líneas actuales con las de la elección
-                    self.current_scene["lines"] = button["next_lines"]
+                    # CORRECCIÓN: Crear una nueva escena para las líneas de elección
+                    # Esto evita el loop manteniendo la estructura correcta
+                    choice_scene = {
+                        "id": f"{self.current_scene['id']}_choice",
+                        "lines": button["next_lines"]
+                    }
+                    
+                    # Mantener el sonido de fondo si existe
+                    if "background_sound" in self.current_scene:
+                        choice_scene["background_sound"] = self.current_scene["background_sound"]
+                    
+                    # Reemplazar completamente la escena actual
+                    self.current_scene = choice_scene
                     self.current_line_index = 0
                     self.showing_choice = False
                     self.choice_data = None
