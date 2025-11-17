@@ -239,9 +239,55 @@ FOURTH_SCENE = {
     ]
 }
 
+FIFTH_SCENE = {
+    "id": "fifth_scene",
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.3,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train.jpg",
+            "sound": "train-stopping.mp3",
+            "text": "El tren frenó de golpe. ¿Ésta es Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces están todas apagadas. Qué mierda."
+        },
+        {
+            "character": "",
+            "background": "background-train.jpg",
+            "sound": "whispers.mp3",
+            "text": "#@)/$|-..."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train.jpg",
+            "text": "!?"
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "¿Lo ves? Te dije. No son pasajeros lo que sube en estas paradas."
+        },
+        {
+            "character": "",
+            "background": "background-train.jpg",  
+            "sound": "light-buzz.mp3",
+            "text": "¡!", 
+            "effect": "blink_black"  
+        },
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",  
+            "text": "¿¡Eh!? ¿¡Que es todo esto...!?"
+        }
+    ]
+}
+
 SCENES = {
     "first_scene": FIRST_SCENE,
     "second_scene": SECOND_SCENE,
     "third_scene": THIRD_SCENE,
-    "fourth_scene": FOURTH_SCENE
+    "fourth_scene": FOURTH_SCENE,
+    "fifth_scene": FIFTH_SCENE
 }

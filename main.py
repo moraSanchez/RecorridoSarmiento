@@ -1,4 +1,3 @@
-# main.py COMMIT DE PRUEBA
 import pygame
 from core.game import Game
 
