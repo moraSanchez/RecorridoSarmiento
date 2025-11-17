@@ -12,12 +12,17 @@ FIRST_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "anden.jpg", 
-            "text": "Espera... ese ruido. ¿Un tren? Pero si acaban de anunciar que no hay más servicios hasta mañana… La aplicación de trenes no dice nada. Bah, si siempre anda para el orto."
+            "text": "Espera... ese ruido. ¿Un tren? Pero si acaban de anunciar que no hay más servicios hasta mañana…"
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "anden.jpg", 
+            "text": "La aplicación de trenes no dice nada. Bah, si siempre anda para el orto."
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "anden-tren.jpg",
-            "text": "Qué raro. Este no es como los otros. Parece uno de esos vagones antiguos que sacaron de circulación hace años. ¿Será un servicio especial? Bueno, mejor esto que quedarme en once."
+            "text": "Qué raro. Este no es como los otros. ¿Será un servicio especial? Bueno, mejor esto que quedarme en once."
         }
     ]
 }
@@ -30,7 +35,19 @@ SECOND_SCENE = {
             "character": "[PLAYER_NAME]",
             "background": None,
             "sound": "door-sound.mp3",
-            "text": "Ugh, hay un olor re raro. ¿Algo podrido? Parece estar en todo el tren. Bueno, me siento en el fondo y listo, no me voy a quejar tanto, al menos espero que vaya rápido."
+            "text": "..."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": None,
+            "sound": "door-sound.mp3",
+            "text": "Ugh, hay un olor re raro. ¿Algo podrido? Parece estar en todo el tren."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": None,
+            "sound": "door-sound.mp3",
+            "text": "Bueno, me siento en el fondo y listo, no me voy a quejar tanto, al menos espero que vaya rápido."
         }
     ]
 }
@@ -61,8 +78,14 @@ THIRD_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagón. No quiero prejuzgar, pero tampoco quiero que me roben, ¿debería hacerme el copado y saludar o simplemente ignorarlo?"
+            "text": "Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagón."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train.jpg",
+            "text": "No quiero prejuzgar, pero tampoco quiero que me roben, ¿debería hacerme el copado y saludar o simplemente ignorarlo?"
         }
+        
     ],
     "choice": {
         "question": "¿Qué debería hacer?",
@@ -76,12 +99,12 @@ THIRD_SCENE = {
                         "text": "Buenas noches."
                     },
                     {
-                        "character": "Linyera",
+                        "character": "???",
                         "background": "linyera.jpg",
                         "text": "..."
                     },
                     {
-                        "character": "Linyera",
+                        "character": "???",
                         "background": "linyera.jpg", 
                         "text": "Noches buenas no hay en este tren, pibe. Solo noches."
                     },
@@ -96,7 +119,7 @@ THIRD_SCENE = {
                         "text": "(Me voy a otro vagon, por las dudas.)"
                     },
                     {
-                        "character": "Linyera",
+                        "character": "???",
                         "background": "linyera.jpg",
                         "text": "..."
                     },
@@ -108,7 +131,7 @@ THIRD_SCENE = {
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "El tren lleva avanzando hace rato pero todavía no freno en ninguna estación, que raro. Capaz no estoy prestando atención. Bueno, teniendo a ese linyera cerca, es difícil la verdad…"
+                        "text": "(El tren lleva avanzando hace rato pero todavía no freno en ninguna estación, que raro. Capaz no estoy prestando atención. Bueno, teniendo a ese linyera cerca, es difícil la verdad…)"
                     }
                 ]
             },
@@ -126,7 +149,7 @@ THIRD_SCENE = {
                         "text": "(Me siento mas adelante, aca puedo mantener distancia y mantenerlo a la vista a la vez...)"
                     },
                     {
-                        "character": "Linyera",
+                        "character": "???",
                         "background": "linyera.jpg",
                         "text": "Los que no saludan son los que más rápido se pierden..."
                     },
@@ -138,13 +161,15 @@ THIRD_SCENE = {
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "El tren lleva avanzando hace rato pero todavía no freno en ninguna estación, que raro. Capaz no estoy prestando atención. Bueno, teniendo a ese linyera cerca, es difícil la verdad…"
+                        "text": "(El tren lleva avanzando hace rato pero todavía no freno en ninguna estación, que raro. Capaz no estoy prestando atención. Bueno, teniendo a ese linyera cerca, es difícil la verdad…)"
                     }
                 ]
             }
         ]
     }
 }
+
+
 
 # Cuarta Escena - Diálogo con el Linyera HASTA MERLO 
 FOURTH_SCENE = {
@@ -162,7 +187,7 @@ FOURTH_SCENE = {
         },
         {
             "character": "[PLAYER_NAME]",
-            "background": "background.train.jpg",
+            "background": "background-train.jpg",
             "text": "¿Cómo que no es mi tren? Es el Sarmiento, voy hasta Merlo."
         },
         {
@@ -172,7 +197,7 @@ FOURTH_SCENE = {
         },
         {
             "character": "[PLAYER_NAME]",
-            "background": "background.train.jpg",
+            "background": "background-train.jpg",
             "text": "¿Está borracho? Claramente estamos parando en estaciones, esta pirado."
         },
         {
@@ -181,8 +206,13 @@ FOURTH_SCENE = {
             "text": "Esas no son estaciones, pibe. Son... recuerdos. Y algunos recuerdos te persiguen."
         },
         {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "..."
+        },
+        {
             "character": "",
-            "background": "background.train.jpg",
+            "background": "background-train.jpg",
             "sound": "train-brake.mp3",
             "text": "El tren frena bruscamente en una estación oscura"
         },
