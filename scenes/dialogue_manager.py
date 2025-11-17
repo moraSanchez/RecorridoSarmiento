@@ -25,6 +25,8 @@ class DialogueManager:
         self.is_dialogue_active = False
         self.current_background = None
         self.player_name = ""
+        self.background_sound = None
+        self.current_background_sound = None
         
         # Directorio de sonidos
         self.SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "..", "sounds")
@@ -35,6 +37,12 @@ class DialogueManager:
         self.current_line_index = 0
         self.is_dialogue_active = True
         self.player_name = player_name
+        
+        # Detener sonido de fondo anterior si existe
+        self._stop_background_sound()
+        
+        # Cargar sonido de fondo si existe
+        self._load_background_sound()
         
         # Cargar el fondo inicial de la primera línea
         self._load_background_for_current_line()
@@ -48,6 +56,46 @@ class DialogueManager:
                 line["text"] = line["text"].replace("[PLAYER_NAME]", player_name)
                 if line["character"] == "[PLAYER_NAME]":
                     line["character"] = player_name
+    
+    def _load_background_sound(self):
+        """Carga y reproduce el sonido de fondo de la escena"""
+        if not self.current_scene:
+            return
+            
+        background_sound_data = self.current_scene.get("background_sound")
+        if background_sound_data:
+            try:
+                sound_file = background_sound_data.get("file", "")
+                sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
+                
+                if os.path.exists(sound_path):
+                    # Detener música de fondo anterior
+                    pygame.mixer.music.stop()
+                    
+                    # Cargar y reproducir sonido de fondo
+                    pygame.mixer.music.load(sound_path)
+                    
+                    # Configurar volumen (por defecto 0.3 = 30%)
+                    volume = background_sound_data.get("volume", 0.3)
+                    pygame.mixer.music.set_volume(volume)
+                    
+                    # Reproducir en loop si está especificado
+                    if background_sound_data.get("loop", False):
+                        pygame.mixer.music.play(-1)  # -1 para loop infinito
+                    else:
+                        pygame.mixer.music.play()
+                        
+                    self.current_background_sound = background_sound_data
+            except:
+                pass
+    
+    def _stop_background_sound(self):
+        """Detiene el sonido de fondo actual"""
+        try:
+            pygame.mixer.music.stop()
+            self.current_background_sound = None
+        except:
+            pass
     
     def _load_background_for_current_line(self):
         """Carga la imagen de fondo para la línea actual"""
@@ -92,7 +140,7 @@ class DialogueManager:
             try:
                 sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
                 if os.path.exists(sound_path):
-                    pygame.mixer.stop()
+                    # No detenemos el sonido de fondo, solo reproducimos el efecto
                     sound = pygame.mixer.Sound(sound_path)
                     sound.play()
             except:
@@ -107,6 +155,8 @@ class DialogueManager:
         
         if self.current_line_index >= len(self.current_scene["lines"]):
             self.is_dialogue_active = False
+            # Detener sonido de fondo al terminar la escena
+            self._stop_background_sound()
             return "scene_end"
         
         self._load_background_for_current_line()
@@ -196,3 +246,8 @@ class DialogueManager:
         
         self.current_line_index = len(self.current_scene["lines"]) - 1
         self._load_background_for_current_line()
+    
+    def stop_all_sounds(self):
+        """Detiene todos los sonidos"""
+        self._stop_background_sound()
+        pygame.mixer.stop()

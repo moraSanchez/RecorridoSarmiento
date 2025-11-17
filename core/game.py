@@ -86,6 +86,8 @@ class Game:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
+                # Detener todos los sonidos al volver al menú
+                self.dialogue_manager.stop_all_sounds()
                 self.current_state = "MENU"
                 self.player_name = ""
                 self.player_id = None
@@ -103,11 +105,18 @@ class Game:
                     self._handle_scene_end()
 
     def _handle_scene_end(self):
-        if self.dialogue_manager.current_scene and self.dialogue_manager.current_scene["id"] == "first_scene":
-            self.dialogue_manager.load_scene(SCENES["second_scene"], self.player_name)
-            self.current_state = "PLAYING"
-        else:
-            self.current_state = "MENU"
+        if self.dialogue_manager.current_scene:
+            scene_id = self.dialogue_manager.current_scene["id"]
+            
+            if scene_id == "first_scene":
+                self.dialogue_manager.load_scene(SCENES["second_scene"], self.player_name)
+                self.current_state = "PLAYING"
+            elif scene_id == "second_scene":
+                self.dialogue_manager.load_scene(SCENES["third_scene"], self.player_name)
+                self.current_state = "PLAYING"
+            else:
+                # Para cualquier otra escena (incluyendo la tercera), volver al menú
+                self.current_state = "MENU"
 
     def run(self):
         self.volume_control.play_background_music()

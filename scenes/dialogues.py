@@ -35,8 +35,41 @@ SECOND_SCENE = {
     ]
 }
 
+# TERCERA ESCENA - Con sonido de tren en loop
+THIRD_SCENE = {
+    "id": "third_scene",
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.3,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "NARRADOR",
+            "background": "anden.jpg",
+            "text": "Al avanzar por el pasillo, en el último asiento del vagón hay una figura encorvada, ropa harapienta, un abrigo gastado y una barba larga, sucia. Todo en él parece sucio."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "anden.jpg",
+            "text": "¿...?"
+        },
+        {
+            "character": "NARRADOR", 
+            "background": "anden.jpg",
+            "text": "Tiene un olor fuerte a alcohol, bueno, tiene una caja de Termidor en la mano… y su higiene no es muy buena. Me da mala vibra."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "anden.jpg",
+            "text": "Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagón. No quiero prejuzgar, pero tampoco quiero que me roben, ¿debería hacerme el copado y saludar o simplemente ignorarlo?"
+        }
+    ]
+}
+
 # Diccionario de todas las escenas
 SCENES = {
     "first_scene": FIRST_SCENE,
-    "second_scene": SECOND_SCENE
+    "second_scene": SECOND_SCENE,
+    "third_scene": THIRD_SCENE
 }
