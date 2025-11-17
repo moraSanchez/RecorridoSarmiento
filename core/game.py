@@ -11,27 +11,22 @@ from scenes.dialogues import SCENES
 
 class Game:
     def __init__(self):
-        # Configuración de pantalla
         self.WIDTH, self.HEIGHT = 1220, 680
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Recorrido Sarmiento: Último Viaje")
 
-        # Estados del juego
         self.current_state = "MENU"
         self.player_name = ""
         self.player_id = None
 
-        # Managers
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         self.volume_control = VolumeControl(self.WIDTH, self.HEIGHT)
         self.load_game_scene = LoadGameScene(self)
         self.dialogue_manager = DialogueManager(self.screen, self.WIDTH, self.HEIGHT)
 
-        # Botones del menú - DEFINIDO DIRECTAMENTE EN __init__
         self.setup_menu_buttons()
 
     def setup_menu_buttons(self):
-        """Configura los botones del menú principal"""
         button_width, button_height = 250, 60
         button_margin = 35
         buttons_y_start = 300
@@ -43,7 +38,6 @@ class Game:
         ]
 
     def handle_menu_events(self, event):
-        """Maneja eventos en el estado MENU"""
         if self.volume_control.handle_events(event):
             return
 
@@ -67,7 +61,6 @@ class Game:
                 button["clicked"] = False
 
     def handle_name_input_events(self, event):
-        """Maneja eventos en el estado ENTER_NAME"""
         if self.volume_control.handle_events(event):
             return
 
@@ -88,7 +81,6 @@ class Game:
                     self.player_name += event.unicode
 
     def handle_playing_events(self, event):
-        """Maneja eventos en el estado PLAYING"""
         if self.volume_control.handle_events(event):
             return
 
@@ -111,11 +103,13 @@ class Game:
                     self._handle_scene_end()
 
     def _handle_scene_end(self):
-        """Maneja el final de una escena"""
-        self.current_state = "MENU"
+        if self.dialogue_manager.current_scene and self.dialogue_manager.current_scene["id"] == "first_scene":
+            self.dialogue_manager.load_scene(SCENES["second_scene"], self.player_name)
+            self.current_state = "PLAYING"
+        else:
+            self.current_state = "MENU"
 
     def run(self):
-        """Método principal que ejecuta el bucle del juego"""
         self.volume_control.play_background_music()
 
         clock = pygame.time.Clock()

@@ -1,3 +1,4 @@
+# scenes/dialogue_manager.py
 import pygame
 import os
 
@@ -12,6 +13,7 @@ class DialogueManager:
         self.NAME_BOX = (17, 17, 17)
         self.BORDER_COLOR = (35, 35, 35)
         self.WHITE = (255, 255, 255)
+        self.BLACK = (0, 0, 0)
         
         # Fuentes
         self.dialogue_font = pygame.font.SysFont("arial", 28)
@@ -22,23 +24,28 @@ class DialogueManager:
         self.current_line_index = 0
         self.is_dialogue_active = False
         self.current_background = None
-        self.player_name = ""  # Nuevo: almacenar el nombre del jugador
+        self.player_name = ""
         
+        # Directorio de sonidos
+        self.SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "..", "sounds")
+    
     def load_scene(self, scene_data, player_name=""):
         """Carga una nueva escena de diálogo"""
         self.current_scene = scene_data
         self.current_line_index = 0
         self.is_dialogue_active = True
-        self.player_name = player_name  # Guardar el nombre del jugador
+        self.player_name = player_name
         
         # Cargar el fondo inicial de la primera línea
         self._load_background_for_current_line()
+        
+        # Reproducir sonido de la primera línea si existe
+        self._play_sound_for_current_line()
         
         # Reemplazar [PLAYER_NAME] en los diálogos
         if player_name:
             for line in self.current_scene["lines"]:
                 line["text"] = line["text"].replace("[PLAYER_NAME]", player_name)
-                # También reemplazar en el nombre del personaje si es [PLAYER_NAME]
                 if line["character"] == "[PLAYER_NAME]":
                     line["character"] = player_name
     
@@ -53,7 +60,6 @@ class DialogueManager:
         
         if background_file:
             try:
-                # Buscar en diferentes rutas posibles
                 possible_paths = [
                     os.path.join("img", "backgrounds", background_file),
                     os.path.join("img", background_file),
@@ -69,16 +75,28 @@ class DialogueManager:
                 if background_path:
                     self.current_background = pygame.image.load(background_path)
                     self.current_background = pygame.transform.scale(self.current_background, (self.WIDTH, self.HEIGHT))
-                    print(f"Fondo cargado: {background_file}")
-                else:
-                    print(f"Fondo no encontrado: {background_file}")
-                    self.current_background = None
-                    
-            except Exception as e:
-                print(f"Error al cargar fondo {background_file}: {e}")
+            except:
                 self.current_background = None
         else:
             self.current_background = None
+    
+    def _play_sound_for_current_line(self):
+        """Reproduce el sonido asociado a la línea actual si existe"""
+        if not self.current_scene or self.current_line_index >= len(self.current_scene["lines"]):
+            return
+            
+        current_line = self.current_scene["lines"][self.current_line_index]
+        sound_file = current_line.get("sound", "")
+        
+        if sound_file:
+            try:
+                sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
+                if os.path.exists(sound_path):
+                    pygame.mixer.stop()
+                    sound = pygame.mixer.Sound(sound_path)
+                    sound.play()
+            except:
+                pass
     
     def advance_dialogue(self):
         """Avanza al siguiente diálogo o termina la escena"""
@@ -87,13 +105,12 @@ class DialogueManager:
             
         self.current_line_index += 1
         
-        # Verificar si terminó la escena
         if self.current_line_index >= len(self.current_scene["lines"]):
             self.is_dialogue_active = False
             return "scene_end"
         
-        # Cargar el nuevo fondo para la siguiente línea
         self._load_background_for_current_line()
+        self._play_sound_for_current_line()
         return "advance"
     
     def get_current_line(self):
@@ -109,21 +126,16 @@ class DialogueManager:
         if not self.is_dialogue_active or not self.current_scene:
             return
         
-        # Dibujar fondo de la línea actual
         if self.current_background:
             self.screen.blit(self.current_background, (0, 0))
         else:
-            self.screen.fill((0, 0, 0))
+            self.screen.fill(self.BLACK)
         
-        # Obtener línea actual
         current_line = self.get_current_line()
         if not current_line:
             return
         
-        # Dibujar caja de diálogo
         self.draw_dialogue_box(current_line["text"], current_line["character"])
-        
-        # Dibujar indicador para continuar
         self.draw_continue_indicator()
     
     def draw_dialogue_box(self, text="", character_name=""):
