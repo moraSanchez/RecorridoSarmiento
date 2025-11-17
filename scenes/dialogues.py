@@ -146,7 +146,7 @@ THIRD_SCENE = {
     }
 }
 
-# Cuarta Escena - Diálogo con el Linyera
+# Cuarta Escena - Diálogo con el Linyera HASTA MERLO 
 FOURTH_SCENE = {
     "id": "fourth_scene",
     "background_sound": {
