@@ -26,9 +26,11 @@ class Game:
         self.player_name = ""
         self.current_text = ""
         
+        # INICIALIZAR AudioManager PRIMERO
+        self.audio_manager = AudioManager()
+        
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
         self.dialogue_manager = DialogueManager(self.screen, self.WIDTH, self.HEIGHT)
-        self.audio_manager = AudioManager()
         self.db_manager = db_manager
         
         self.settings_modal = SettingsModal(
@@ -39,7 +41,7 @@ class Game:
         self.menu_scene = MenuScene(self)
         self.load_game_scene = LoadGameScene(self)
         
-        # CONECTAR dialogue_manager con game
+        # CONECTAR dialogue_manager con game (IMPORTANTE para que funcione AudioManager)
         self.dialogue_manager.game = self
         
         # REPRODUCIR música del menú al iniciar
@@ -134,6 +136,9 @@ class Game:
         pass
     
     def draw(self):
+        # Pasar el estado actual al modal de ajustes
+        self.settings_modal.set_game_state(self.current_state)
+        
         if self.current_state == "MENU":
             self.menu_scene.draw()
         elif self.current_state == "ENTER_NAME":

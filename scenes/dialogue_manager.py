@@ -150,24 +150,41 @@ class DialogueManager:
         if background_sound_data:
             try:
                 sound_file = background_sound_data.get("file", "")
-                sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
                 
-                if os.path.exists(sound_path):
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.load(sound_path)
-                    
-                    volume = background_sound_data.get("volume", 0.3)
-                    pygame.mixer.music.set_volume(volume)
-                    
-                    if background_sound_data.get("loop", False):
-                        pygame.mixer.music.play(-1)
-                    else:
-                        pygame.mixer.music.play()
+                # USAR AUDIO MANAGER para train-sound.mp3
+                if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
+                    if sound_file == "train-sound.mp3":
+                        # Detener cualquier sonido de tren anterior
+                        if self.game.audio_manager.current_train_sound:
+                            self.game.audio_manager.current_train_sound.stop()
                         
-                    self.current_background_sound = background_sound_data
-                    print(f"🎵 Background sound cargado: {sound_file}")
+                        # Reproducir nuevo sonido de tren usando AudioManager
+                        train_sound = self.game.audio_manager.play_sound("train_sound")
+                        if train_sound and background_sound_data.get("loop", False):
+                            train_sound.play(-1)  # Loop para el sonido del tren
+                        
+                        self.game.audio_manager.current_train_sound = train_sound
+                        print(f"Sonido de tren iniciado: {sound_file}")
+                    else:
+                        # Para otros sonidos de fondo, usar pygame.mixer.music
+                        sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
+                        if os.path.exists(sound_path):
+                            pygame.mixer.music.stop()
+                            pygame.mixer.music.load(sound_path)
+                            volume = background_sound_data.get("volume", 0.3)
+                            pygame.mixer.music.set_volume(volume)
+                            
+                            if background_sound_data.get("loop", False):
+                                pygame.mixer.music.play(-1)
+                            else:
+                                pygame.mixer.music.play()
+                                
+                            self.current_background_sound = background_sound_data
+                            print(f"Background sound cargado: {sound_file}")
+                        else:
+                            print(f"Background sound no encontrado: {sound_file}")
                 else:
-                    print(f"❌ Background sound no encontrado: {sound_file}")
+                    print("AudioManager no disponible")
             except Exception as e:
                 print(f"Error cargando background sound: {e}")
     
@@ -175,6 +192,10 @@ class DialogueManager:
         try:
             pygame.mixer.music.stop()
             self.current_background_sound = None
+            
+            # Detener también el sonido del tren si está activo
+            if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
+                self.game.audio_manager.stop_sound("train_sound")
         except:
             pass
     
@@ -203,10 +224,8 @@ class DialogueManager:
                 if background_path:
                     self.current_background = pygame.image.load(background_path)
                     self.current_background = pygame.transform.scale(self.current_background, (self.WIDTH, self.HEIGHT))
-                    print(f"🖼️ Background cargado: {background_file}")
                 else:
                     self.current_background = None
-                    print(f"❌ Background no encontrado: {background_file}")
             except Exception as e:
                 print(f"Error cargando background: {e}")
                 self.current_background = None
@@ -221,7 +240,13 @@ class DialogueManager:
         sound_file = current_line.get("sound", "")
         
         if sound_file:
-            print(f"🎵 Intentando reproducir: {sound_file}")
+            print(f"Intentando reproducir: {sound_file}")
+            
+            # DETENER SONIDO DEL TREN cuando suena train-stopping.mp3
+            if sound_file == "train-stopping.mp3":
+                if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
+                    self.game.audio_manager.stop_sound("train_sound")
+                    print("Sonido del tren detenido por frenado brusco")
             
             if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
                 # REPRODUCIR SONIDO con el audio_manager
@@ -232,9 +257,9 @@ class DialogueManager:
                 elif sound_file == "whispers.mp3":
                     self.game.audio_manager.play_sound("whispers")
                 else:
-                    print(f"❌ Sonido no mapeado: {sound_file}")
+                    print(f"Sonido no mapeado: {sound_file}")
             else:
-                print("❌ AudioManager no disponible")
+                print("AudioManager no disponible")
     
     def advance_dialogue(self):
         if not self.is_dialogue_active or not self.current_scene:
