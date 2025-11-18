@@ -20,7 +20,7 @@ class Game:
         
         self.running = True
         self.current_state = "MENU"
-        self.current_scene_index = 0  # NUEVO: Para controlar las escenas
+        self.current_scene_index = 0
         
         self.player_id = None
         self.player_name = ""
@@ -39,7 +39,12 @@ class Game:
         self.menu_scene = MenuScene(self)
         self.load_game_scene = LoadGameScene(self)
         
-        # Lista de escenas en orden
+        # CONECTAR dialogue_manager con game
+        self.dialogue_manager.game = self
+        
+        # REPRODUCIR música del menú al iniciar
+        self.audio_manager.play_menu_music()
+        
         from scenes.dialogues import SCENES
         self.scenes_order = ["first_scene", "second_scene", "third_scene", "fourth_scene", "fifth_scene"]
     
@@ -48,7 +53,12 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
             
-            if self.settings_modal.handle_events(event, self.current_state, self.player_id, self.player_name):
+            modal_result = self.settings_modal.handle_events(event, self.current_state, self.player_id, self.player_name)
+            if modal_result == "MENU":
+                self.current_state = "MENU"
+                self.audio_manager.play_menu_music()
+                continue
+            elif modal_result:
                 continue
             
             if self.current_state == "MENU":
@@ -64,12 +74,15 @@ class Game:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN and self.current_text.strip():
                 self.player_name = self.current_text.strip()
-                self.player_id = self.db_manager.guardar_jugador(self.player_name)  # CAMBIADO: usar guardar_jugador
+                self.player_id = self.db_manager.guardar_jugador(self.player_name)
                 
                 from scenes.dialogues import SCENES
                 self.dialogue_manager.load_scene(SCENES["first_scene"], self.player_name)
                 self.current_state = "PLAYING"
                 self.current_scene_index = 0
+                
+                # DETENER música del menú cuando empieza la partida
+                self.audio_manager.stop_menu_music()
                 
             elif event.key == pygame.K_BACKSPACE:
                 self.current_text = self.current_text[:-1]
@@ -85,21 +98,22 @@ class Game:
             if event.key == pygame.K_SPACE:
                 result = self.dialogue_manager.advance_dialogue()
                 if result == "scene_end":
-                    self.advance_to_next_scene()  # NUEVO: Cambiar a siguiente escena
+                    self.advance_to_next_scene()
                     
             elif event.key == pygame.K_ESCAPE:
                 self.current_state = "MENU"
+                self.audio_manager.stop_all_sounds()
+                self.audio_manager.play_menu_music()
         
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 result = self.dialogue_manager.advance_dialogue()
                 if result == "scene_end":
-                    self.advance_to_next_scene()  # NUEVO: Cambiar a siguiente escena
+                    self.advance_to_next_scene()
         
         self.dialogue_manager.handle_choice_events(event)
     
-    def advance_to_next_scene(self):  # NUEVO MÉTODO
-        """Avanza a la siguiente escena del juego"""
+    def advance_to_next_scene(self):
         from scenes.dialogues import SCENES
         
         self.current_scene_index += 1
@@ -108,11 +122,10 @@ class Game:
             next_scene_name = self.scenes_order[self.current_scene_index]
             next_scene = SCENES[next_scene_name]
             self.dialogue_manager.load_scene(next_scene, self.player_name)
-            print(f"Avanzando a escena: {next_scene_name}")  # Para debug
         else:
-            # Fin del juego
-            print("¡Fin del juego!")
             self.current_state = "MENU"
+            self.audio_manager.stop_all_sounds()
+            self.audio_manager.play_menu_music()
     
     def check_saved_games(self):
         self.load_game_scene.check_saved_games()

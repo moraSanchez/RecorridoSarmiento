@@ -22,18 +22,17 @@ class SettingsModal:
             "rect": pygame.Rect(width//2 - 200, height//2 - 150, 400, 300),
             "buttons": [
                 {"text": "Guardar partida y salir", "rect": pygame.Rect(0, 0, 300, 50), "action": "SAVE_EXIT"},
-                {"text": "Volumen", "rect": pygame.Rect(0, 0, 300, 50), "action": "VOLUME"},
-                {"text": "Cerrar", "rect": pygame.Rect(0, 0, 300, 50), "action": "CLOSE"}
+                {"text": "Volumen", "rect": pygame.Rect(0, 0, 300, 50), "action": "VOLUME"}
             ]
         }
         
         self.volume_modal = {
             "rect": pygame.Rect(width//2 - 250, height//2 - 175, 500, 350),
             "sliders": [
-                {"label": "Sonido general", "value": 1.0, "rect": pygame.Rect(0, 0, 300, 20), "dragging": False},
-                {"label": "Sonido de ambiente", "value": 1.0, "rect": pygame.Rect(0, 0, 300, 20), "dragging": False}
+                {"label": "Volumen general", "value": 1.0, "rect": pygame.Rect(0, 0, 300, 20), "dragging": False},
+                {"label": "Volumen ambiente", "value": 1.0, "rect": pygame.Rect(0, 0, 300, 20), "dragging": False}
             ],
-            "close_button": {"rect": pygame.Rect(0, 0, 100, 40), "text": "Cerrar"}
+            "close_button": {"rect": pygame.Rect(0, 0, 100, 40), "text": "Volver atrás"}  # CAMBIADO
         }
         
         self.settings_icon = self.load_settings_icon()
@@ -52,9 +51,10 @@ class SettingsModal:
         self.SLIDER_HANDLE = (200, 200, 200)
         self.TEXT_COLOR = (255, 255, 255)
         
+        # Cargar volúmenes actuales
         volume_data = self.audio_manager.get_volume_data()
         self.volume_modal["sliders"][0]["value"] = volume_data["volume_level"]
-        self.volume_modal["sliders"][1]["value"] = volume_data["volume_level"]
+        self.volume_modal["sliders"][1]["value"] = volume_data["ambient_volume"]
     
     def load_settings_icon(self):
         try:
@@ -88,7 +88,15 @@ class SettingsModal:
                     return True
                 
                 elif self.settings_visible and not self.volume_modal_visible:
-                    if self.settings_modal["rect"].collidepoint(mouse_pos):
+                    modal_rect = self.settings_modal["rect"]
+                    
+                    # Verificar clic en la X de cerrar
+                    close_rect = pygame.Rect(modal_rect.right - 40, modal_rect.y + 10, 30, 30)
+                    if close_rect.collidepoint(mouse_pos):
+                        self.settings_visible = False
+                        return True
+                    
+                    if modal_rect.collidepoint(mouse_pos):
                         for button in self.settings_modal["buttons"]:
                             if button["rect"].collidepoint(mouse_pos):
                                 if button["action"] == "SAVE_EXIT":
@@ -96,27 +104,37 @@ class SettingsModal:
                                 elif button["action"] == "VOLUME":
                                     self.volume_modal_visible = True
                                     return True
-                                elif button["action"] == "CLOSE":
-                                    self.settings_visible = False
-                                    return True
                     
-                    if not self.settings_modal["rect"].collidepoint(mouse_pos):
+                    # Clic fuera del modal lo cierra
+                    if not modal_rect.collidepoint(mouse_pos):
                         self.settings_visible = False
                         return True
                 
                 elif self.volume_modal_visible:
-                    if self.volume_modal["rect"].collidepoint(mouse_pos):
+                    volume_rect = self.volume_modal["rect"]
+                    
+                    # Verificar clic en la X de cerrar del volumen (cierra TODO)
+                    close_rect = pygame.Rect(volume_rect.right - 40, volume_rect.y + 10, 30, 30)
+                    if close_rect.collidepoint(mouse_pos):
+                        self.volume_modal_visible = False
+                        self.settings_visible = False  # Cierra todo
+                        return True
+                    
+                    if volume_rect.collidepoint(mouse_pos):
                         for slider in self.volume_modal["sliders"]:
                             if slider["rect"].collidepoint(mouse_pos):
                                 self.handle_slider_click(slider, mouse_pos)
                                 return True
                         
+                        # Botón "Volver atrás" (solo vuelve al modal anterior)
                         if self.volume_modal["close_button"]["rect"].collidepoint(mouse_pos):
                             self.volume_modal_visible = False
                             return True
                     
-                    elif not self.volume_modal["rect"].collidepoint(mouse_pos):
+                    # Clic fuera del modal de volumen lo cierra completamente
+                    elif not volume_rect.collidepoint(mouse_pos):
                         self.volume_modal_visible = False
+                        self.settings_visible = False
                         return True
         
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -144,31 +162,26 @@ class SettingsModal:
         new_value = max(0.0, min(1.0, relative_x / slider_rect.width))
         slider["value"] = new_value
         
-        if slider["label"] == "Sonido general":
+        if slider["label"] == "Volumen general":
             self.audio_manager.set_volume(new_value)
-        elif slider["label"] == "Sonido de ambiente":
+        elif slider["label"] == "Volumen ambiente":
             self.audio_manager.set_ambient_volume(new_value)
     
     def save_and_exit(self, player_id, player_name):
-        """Guarda la partida y sale al menú - IMPLEMENTACIÓN REAL"""
-        if player_id and player_name:
-            # Actualizar la última partida del jugador
+        """Guarda la partida y sale al menú"""
+        if player_name:
             success = self.db_manager.guardar_jugador(player_name)
             if success:
-                print(f"Partida guardada para {player_name}")
                 self.settings_visible = False
+                self.volume_modal_visible = False
                 return "MENU"
-            else:
-                print("Error al guardar la partida")
-        else:
-            print("No hay jugador para guardar")
         return None
     
     def update_modal_positions(self):
         modal_rect = self.settings_modal["rect"]
         modal_rect.center = (self.WIDTH // 2, self.HEIGHT // 2)
         
-        button_y = modal_rect.y + 80
+        button_y = modal_rect.y + 100
         for button in self.settings_modal["buttons"]:
             button["rect"].x = modal_rect.x + (modal_rect.width - button["rect"].width) // 2
             button["rect"].y = button_y
@@ -230,6 +243,7 @@ class SettingsModal:
         for button in self.settings_modal["buttons"]:
             self.draw_modal_button(screen, button, mouse_pos)
         
+        # Dibujar X de cerrar
         close_rect = pygame.Rect(modal_rect.right - 40, modal_rect.y + 10, 30, 30)
         self.draw_close_button(screen, close_rect, mouse_pos)
     
@@ -249,9 +263,11 @@ class SettingsModal:
         for slider in self.volume_modal["sliders"]:
             self.draw_volume_slider(screen, slider, mouse_pos)
         
+        # Botón "Volver atrás" (solo vuelve al modal anterior)
         close_btn = self.volume_modal["close_button"]
         self.draw_modal_button(screen, close_btn, mouse_pos)
         
+        # X de cerrar (cierra todo)
         close_rect = pygame.Rect(modal_rect.right - 40, modal_rect.y + 10, 30, 30)
         self.draw_close_button(screen, close_rect, mouse_pos)
     

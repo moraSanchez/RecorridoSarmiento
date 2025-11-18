@@ -214,16 +214,14 @@ class DialogueManager:
         current_line = self.current_scene["lines"][self.current_line_index]
         sound_file = current_line.get("sound", "")
         
-        if sound_file:
-            try:
-                sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
-                if os.path.exists(sound_path):
-                    # REPRODUCIR SONIDO DIRECTAMENTE
-                    sound = pygame.mixer.Sound(sound_path)
-                    sound.play()
-                    print(f"Reproduciendo sonido: {sound_file}")  # Para debug
-            except Exception as e:
-                print(f"Error reproduciendo sonido {sound_file}: {e}")
+        if sound_file and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
+            # REPRODUCIR SONIDO DIRECTAMENTE con el audio_manager
+            if sound_file == "door-sound.mp3":
+                self.game.audio_manager.play_sound("door")
+            elif sound_file == "train-stopping.mp3":
+                self.game.audio_manager.play_sound("train_stopping")
+            elif sound_file == "whispers.mp3":
+                self.game.audio_manager.play_sound("whispers")
     
     def advance_dialogue(self):
         if not self.is_dialogue_active or not self.current_scene:

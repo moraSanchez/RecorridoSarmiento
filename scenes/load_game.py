@@ -9,14 +9,12 @@ class LoadGameScene:
         self.WIDTH = game.WIDTH
         self.HEIGHT = game.HEIGHT
         
-        # Estado de carga
         self.load_game_state = "SELECT_PLAYER"
         self.available_players = []
         self.selected_index = 0
         self.scroll_offset = 0
         self.visible_items = 4
         
-        # Botones
         self.setup_buttons()
         
     def setup_buttons(self):
@@ -53,7 +51,6 @@ class LoadGameScene:
             self.scroll_offset = 0
     
     def handle_events(self, event):
-        # Manejar ajustes (REEMPLAZADO)
         if self.game.settings_modal.handle_events(event, self.game.current_state, self.game.player_id, self.game.player_name):
             return True
 
@@ -110,6 +107,9 @@ class LoadGameScene:
         self.game.player_id = player_id
         self.game.player_name = player_name
         
+        # DETENER música del menú al cargar partida
+        self.game.audio_manager.stop_menu_music()
+        
         self.game.dialogue_manager.load_scene(SCENES["first_scene"], player_name)
         self.game.current_state = "PLAYING"
     
@@ -124,7 +124,6 @@ class LoadGameScene:
             self.check_saved_games()
     
     def draw(self):
-        # Eliminados los parámetros de volumen del draw
         self.game.scene_manager.draw_load_game_screen(
             self.load_game_state,
             self.available_players,
