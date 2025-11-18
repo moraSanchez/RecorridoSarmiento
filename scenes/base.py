@@ -1,4 +1,3 @@
-# scenes/base.py
 from abc import ABC, abstractmethod
 
 class BaseScene(ABC):

@@ -88,7 +88,6 @@ class DialogueManager:
                     self._preload_next_background(next_background_file)
 
     def _preload_next_background(self, background_file):
-        """Precarga el siguiente fondo para transición fluida"""
         try:
             possible_paths = [
                 os.path.join("img", "backgrounds", background_file),
@@ -211,7 +210,7 @@ class DialogueManager:
     def _play_sound_for_current_line(self):
         if not self.current_scene or self.current_line_index >= len(self.current_scene["lines"]):
             return
-            
+        
         current_line = self.current_scene["lines"][self.current_line_index]
         sound_file = current_line.get("sound", "")
         
@@ -219,10 +218,12 @@ class DialogueManager:
             try:
                 sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
                 if os.path.exists(sound_path):
+                    # REPRODUCIR SONIDO DIRECTAMENTE
                     sound = pygame.mixer.Sound(sound_path)
                     sound.play()
-            except:
-                pass
+                    print(f"Reproduciendo sonido: {sound_file}")  # Para debug
+            except Exception as e:
+                print(f"Error reproduciendo sonido {sound_file}: {e}")
     
     def advance_dialogue(self):
         if not self.is_dialogue_active or not self.current_scene:

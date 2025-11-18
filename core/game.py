@@ -1,201 +1,145 @@
-# core/game.py
 import pygame
 import os
 import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
 from scenes.scenes_manager import SceneManager
-from utils.database import db_manager
-from ui.volume_control import VolumeControl
-from scenes.load_game import LoadGameScene
 from scenes.dialogue_manager import DialogueManager
-from scenes.dialogues import SCENES  
+from scenes.menu import MenuScene
+from scenes.load_game import LoadGameScene
+from utils.database import db_manager
+from core.audio_manager import AudioManager
+from ui.settings_modal import SettingsModal
 
 class Game:
     def __init__(self):
-        self.WIDTH, self.HEIGHT = 1220, 680
+        self.WIDTH, self.HEIGHT = 1280, 720
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Recorrido Sarmiento: Último Viaje")
-
+        
+        self.running = True
         self.current_state = "MENU"
-        self.player_name = ""
+        self.current_scene_index = 0  # NUEVO: Para controlar las escenas
+        
         self.player_id = None
-        self.completed_scenes = set() 
-
+        self.player_name = ""
+        self.current_text = ""
+        
         self.scene_manager = SceneManager(self.screen, self.WIDTH, self.HEIGHT)
-        self.volume_control = VolumeControl(self.WIDTH, self.HEIGHT)
-        self.load_game_scene = LoadGameScene(self)
         self.dialogue_manager = DialogueManager(self.screen, self.WIDTH, self.HEIGHT)
-
-        self.setup_menu_buttons()
-
-    def setup_menu_buttons(self):
-        button_width, button_height = 250, 60
-        button_margin = 35
-        buttons_y_start = 300
-
-        self.menu_buttons = [
-            {"text": "Iniciar", "rect": pygame.Rect(50, buttons_y_start, button_width, button_height), "clicked": False},
-            {"text": "Cargar Partida", "rect": pygame.Rect(50, buttons_y_start + button_height + button_margin, button_width, button_height), "clicked": False},
-            {"text": "Salir", "rect": pygame.Rect(50, buttons_y_start + 2*(button_height + button_margin), button_width, button_height), "clicked": False}
-        ]
-
-    def handle_menu_events(self, event):
-        if self.volume_control.handle_events(event):
-            return
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            for button in self.menu_buttons:
-                if button["rect"].collidepoint(mouse_pos):
-                    button["clicked"] = True
-
-                    if button["text"] == "Iniciar":
-                        self.current_state = "ENTER_NAME"
-                    elif button["text"] == "Cargar Partida":
-                        self.load_game_scene.check_saved_games()
-                        self.current_state = "LOAD_GAME"
-                    elif button["text"] == "Salir":
-                        pygame.quit()
-                        sys.exit()
-
-        if event.type == pygame.MOUSEBUTTONUP:
-            for button in self.menu_buttons:
-                button["clicked"] = False
-
-    def handle_name_input_events(self, event):
-        if self.volume_control.handle_events(event):
-            return
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                self.current_state = "MENU"
-                self.player_name = ""
-            elif event.key == pygame.K_RETURN:
-                if self.player_name.strip():
-                    self.player_id = db_manager.guardar_jugador(self.player_name.strip())
-                    if self.player_id:
-                        self.dialogue_manager.load_scene(SCENES["first_scene"], self.player_name)
-                        self.current_state = "PLAYING"
-            elif event.key == pygame.K_BACKSPACE:
-                self.player_name = self.player_name[:-1]
-            else:
-                if len(self.player_name) < 20 and event.unicode.isprintable():
-                    self.player_name += event.unicode
-
-    def handle_playing_events(self, event):
-        if self.volume_control.handle_events(event):
-            return
-
-        if self.dialogue_manager.showing_choice:
-            if self.dialogue_manager.handle_choice_events(event):
-                return
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                self.dialogue_manager.stop_all_sounds()
-                self.current_state = "MENU"
-                self.player_name = ""
-                self.player_id = None
-                self.completed_scenes.clear()  
-            elif event.key == pygame.K_SPACE:
-                if not self.dialogue_manager.showing_choice:
-                    result = self.dialogue_manager.advance_dialogue()
-                    if result == "scene_end":
-                        self._handle_scene_end()
-            elif event.key == pygame.K_RETURN:
-                if not self.dialogue_manager.showing_choice:
-                    self.dialogue_manager.skip_to_end()
-
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  
-                if not self.dialogue_manager.showing_choice:
-                    result = self.dialogue_manager.advance_dialogue()
-                    if result == "scene_end":
-                        self._handle_scene_end()
-
-
-    def _handle_scene_end(self):
-        if self.dialogue_manager.current_scene:
-            scene_id = self.dialogue_manager.current_scene["id"]
+        self.audio_manager = AudioManager()
+        self.db_manager = db_manager
+        
+        self.settings_modal = SettingsModal(
+            self.screen, self.WIDTH, self.HEIGHT, 
+            self.audio_manager, self.db_manager
+        )
+        
+        self.menu_scene = MenuScene(self)
+        self.load_game_scene = LoadGameScene(self)
+        
+        # Lista de escenas en orden
+        from scenes.dialogues import SCENES
+        self.scenes_order = ["first_scene", "second_scene", "third_scene", "fourth_scene", "fifth_scene"]
+    
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
             
-            self.completed_scenes.add(scene_id)
-            print(f"Escena completada: {scene_id}")
-            
-            if scene_id == "first_scene":
-                self.dialogue_manager.load_scene(SCENES["second_scene"], self.player_name)
-                self.current_state = "PLAYING"
-            elif scene_id == "second_scene":
-                self.dialogue_manager.load_scene(SCENES["third_scene"], self.player_name)
-                self.current_state = "PLAYING"
-            elif scene_id in ["third_scene", "third_scene_choice"]:
-                if "fourth_scene" not in self.completed_scenes:
-                    self.dialogue_manager.load_scene(SCENES["fourth_scene"], self.player_name)
-                    self.current_state = "PLAYING"
-                else:
-                    self.current_state = "MENU"
-            elif scene_id == "fourth_scene":
-                if "fifth_scene" not in self.completed_scenes:
-                    self.dialogue_manager.load_scene(SCENES["fifth_scene"], self.player_name)
-                    self.current_state = "PLAYING"
-                else:
-                    self.current_state = "MENU"
-            elif scene_id == "fifth_scene":
-                print("Quinta escena completada, iniciando mecánica del fantasma...")
-                self.current_state = "MENU" 
-            else:
-                self.current_state = "MENU"
-
-    def run(self):
-        self.volume_control.play_background_music()
-
-        clock = pygame.time.Clock()
-        running = True
-
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-
-                if self.current_state == "MENU":
-                    self.handle_menu_events(event)
-                elif self.current_state == "ENTER_NAME":
-                    self.handle_name_input_events(event)
-                elif self.current_state == "LOAD_GAME":
-                    self.load_game_scene.handle_events(event)
-                elif self.current_state == "PLAYING":
-                    self.handle_playing_events(event)
-
-            volume_data = self.volume_control.get_volume_data()
+            if self.settings_modal.handle_events(event, self.current_state, self.player_id, self.player_name):
+                continue
             
             if self.current_state == "MENU":
-                self.scene_manager.draw_menu(
-                    self.menu_buttons, 
-                    volume_data["volume_button"], 
-                    volume_data["volume_panel"],
-                    volume_data["volume_level"], 
-                    volume_data["volume_muted"]
-                )
+                self.menu_scene.handle_events(event)
             elif self.current_state == "ENTER_NAME":
-                self.scene_manager.draw_name_input_screen(
-                    self.player_name, 
-                    volume_data["volume_button"], 
-                    volume_data["volume_panel"],
-                    volume_data["volume_level"], 
-                    volume_data["volume_muted"]
-                )
+                self.handle_name_input_events(event)
             elif self.current_state == "LOAD_GAME":
-                self.load_game_scene.draw(volume_data)
+                self.load_game_scene.handle_events(event)
             elif self.current_state == "PLAYING":
-                self.dialogue_manager.draw()
+                self.handle_playing_events(event)
+    
+    def handle_name_input_events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN and self.current_text.strip():
+                self.player_name = self.current_text.strip()
+                self.player_id = self.db_manager.guardar_jugador(self.player_name)  # CAMBIADO: usar guardar_jugador
                 
-                self.scene_manager.draw_volume_control(
-                    volume_data["volume_button"], 
-                    volume_data["volume_panel"],
-                    volume_data["volume_level"], 
-                    volume_data["volume_muted"]
-                )
-
-            pygame.display.flip()
+                from scenes.dialogues import SCENES
+                self.dialogue_manager.load_scene(SCENES["first_scene"], self.player_name)
+                self.current_state = "PLAYING"
+                self.current_scene_index = 0
+                
+            elif event.key == pygame.K_BACKSPACE:
+                self.current_text = self.current_text[:-1]
+            elif event.key == pygame.K_ESCAPE:
+                self.current_state = "MENU"
+                self.current_text = ""
+            else:
+                if event.unicode.isprintable() and len(self.current_text) < 20:
+                    self.current_text += event.unicode
+    
+    def handle_playing_events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                result = self.dialogue_manager.advance_dialogue()
+                if result == "scene_end":
+                    self.advance_to_next_scene()  # NUEVO: Cambiar a siguiente escena
+                    
+            elif event.key == pygame.K_ESCAPE:
+                self.current_state = "MENU"
+        
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                result = self.dialogue_manager.advance_dialogue()
+                if result == "scene_end":
+                    self.advance_to_next_scene()  # NUEVO: Cambiar a siguiente escena
+        
+        self.dialogue_manager.handle_choice_events(event)
+    
+    def advance_to_next_scene(self):  # NUEVO MÉTODO
+        """Avanza a la siguiente escena del juego"""
+        from scenes.dialogues import SCENES
+        
+        self.current_scene_index += 1
+        
+        if self.current_scene_index < len(self.scenes_order):
+            next_scene_name = self.scenes_order[self.current_scene_index]
+            next_scene = SCENES[next_scene_name]
+            self.dialogue_manager.load_scene(next_scene, self.player_name)
+            print(f"Avanzando a escena: {next_scene_name}")  # Para debug
+        else:
+            # Fin del juego
+            print("¡Fin del juego!")
+            self.current_state = "MENU"
+    
+    def check_saved_games(self):
+        self.load_game_scene.check_saved_games()
+    
+    def update(self):
+        pass
+    
+    def draw(self):
+        if self.current_state == "MENU":
+            self.menu_scene.draw()
+        elif self.current_state == "ENTER_NAME":
+            self.scene_manager.draw_name_input_screen(self.current_text)
+        elif self.current_state == "LOAD_GAME":
+            self.load_game_scene.draw()
+        elif self.current_state == "PLAYING":
+            self.dialogue_manager.draw()
+        
+        self.settings_modal.draw(self.screen)
+        pygame.display.flip()
+    
+    def run(self):
+        clock = pygame.time.Clock()
+        
+        while self.running:
+            self.handle_events()
+            self.update()
+            self.draw()
             clock.tick(60)
-
+        
         pygame.quit()
-        sys.exit()

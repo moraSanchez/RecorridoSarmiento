@@ -170,7 +170,6 @@ THIRD_SCENE = {
 }
 
 
-
 # Cuarta Escena - Diálogo con el Linyera HASTA MERLO 
 FOURTH_SCENE = {
     "id": "fourth_scene",
@@ -213,7 +212,7 @@ FOURTH_SCENE = {
         {
             "character": "",
             "background": "background-train.jpg",
-            "sound": "train-brake.mp3",
+            "sound": "train-stopping.mp3",
             "text": "El tren frena bruscamente en una estación oscura"
         },
         {
@@ -272,7 +271,7 @@ FIFTH_SCENE = {
         {
             "character": "",
             "background": "background-train.jpg",  
-            "sound": "light-buzz.mp3",
+            "sound": "door-sound.mp3",
             "text": "¡!", 
             "effect": "blink_black"  
         },

@@ -1,4 +1,3 @@
-# scenes/load_game.py
 import pygame
 from utils.database import db_manager
 from scenes.dialogues import SCENES
@@ -54,8 +53,9 @@ class LoadGameScene:
             self.scroll_offset = 0
     
     def handle_events(self, event):
-        if self.game.volume_control.handle_events(event):
-            return
+        # Manejar ajustes (REEMPLAZADO)
+        if self.game.settings_modal.handle_events(event, self.game.current_state, self.game.player_id, self.game.player_name):
+            return True
 
         if event.type == pygame.KEYDOWN:
             if self.load_game_state == "SELECT_PLAYER":
@@ -123,16 +123,13 @@ class LoadGameScene:
         if db_manager.eliminar_jugador(player_id):
             self.check_saved_games()
     
-    def draw(self, volume_data):
+    def draw(self):
+        # Eliminados los parámetros de volumen del draw
         self.game.scene_manager.draw_load_game_screen(
             self.load_game_state,
             self.available_players,
             self.selected_index,
             self.load_buttons,
-            volume_data["volume_button"],
-            volume_data["volume_panel"],
-            volume_data["volume_level"],
-            volume_data["volume_muted"],
             self.scroll_offset,
             self.visible_items
         )
