@@ -26,9 +26,12 @@ class AudioManager:
                 filepath = os.path.join(sounds_dir, filename)
                 if os.path.exists(filepath):
                     self.sounds[key] = pygame.mixer.Sound(filepath)
+                    print(f"✅ Sonido cargado: {filename}")
+                else:
+                    print(f"❌ NO se encontró: {filename}")
                     
         except Exception as e:
-            pass
+            print(f"Error cargando sonidos: {e}")
         
     def set_volume(self, volume_level):
         self.master_volume = max(0.0, min(1.0, volume_level))
@@ -39,12 +42,15 @@ class AudioManager:
         self.apply_volumes()
     
     def apply_volumes(self):
+        """Aplica los volúmenes a TODOS los sonidos"""
         overall_volume = 0.0 if self.muted else self.master_volume
         
         for sound_key, sound_obj in self.sounds.items():
             if sound_key == "menu_music":
+                # Música del menú - usa volumen general
                 sound_obj.set_volume(overall_volume)
             else:
+                # TODOS los efectos del juego (puertas, tren, whispers) - usan volumen ambiente
                 sound_obj.set_volume(overall_volume * self.ambient_volume)
     
     def play_menu_music(self):
@@ -61,10 +67,14 @@ class AudioManager:
         """Reproduce un sonido específico"""
         if sound_name in self.sounds:
             try:
-                self.sounds[sound_name].stop()  # Detener antes de reproducir
+                # Detener antes de reproducir para evitar superposición
+                self.sounds[sound_name].stop()
                 self.sounds[sound_name].play()
-            except:
-                pass
+                print(f"🔊 Reproduciendo: {sound_name}")
+            except Exception as e:
+                print(f"Error reproduciendo {sound_name}: {e}")
+        else:
+            print(f"❌ Sonido no encontrado: {sound_name}")
     
     def stop_all_sounds(self):
         """Detiene TODOS los sonidos"""

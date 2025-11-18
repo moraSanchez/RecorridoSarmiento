@@ -165,8 +165,11 @@ class DialogueManager:
                         pygame.mixer.music.play()
                         
                     self.current_background_sound = background_sound_data
-            except:
-                pass
+                    print(f"🎵 Background sound cargado: {sound_file}")
+                else:
+                    print(f"❌ Background sound no encontrado: {sound_file}")
+            except Exception as e:
+                print(f"Error cargando background sound: {e}")
     
     def _stop_background_sound(self):
         try:
@@ -200,9 +203,12 @@ class DialogueManager:
                 if background_path:
                     self.current_background = pygame.image.load(background_path)
                     self.current_background = pygame.transform.scale(self.current_background, (self.WIDTH, self.HEIGHT))
+                    print(f"🖼️ Background cargado: {background_file}")
                 else:
                     self.current_background = None
-            except:
+                    print(f"❌ Background no encontrado: {background_file}")
+            except Exception as e:
+                print(f"Error cargando background: {e}")
                 self.current_background = None
         else:
             self.current_background = None
@@ -214,14 +220,21 @@ class DialogueManager:
         current_line = self.current_scene["lines"][self.current_line_index]
         sound_file = current_line.get("sound", "")
         
-        if sound_file and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
-            # REPRODUCIR SONIDO DIRECTAMENTE con el audio_manager
-            if sound_file == "door-sound.mp3":
-                self.game.audio_manager.play_sound("door")
-            elif sound_file == "train-stopping.mp3":
-                self.game.audio_manager.play_sound("train_stopping")
-            elif sound_file == "whispers.mp3":
-                self.game.audio_manager.play_sound("whispers")
+        if sound_file:
+            print(f"🎵 Intentando reproducir: {sound_file}")
+            
+            if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
+                # REPRODUCIR SONIDO con el audio_manager
+                if sound_file == "door-sound.mp3":
+                    self.game.audio_manager.play_sound("door")
+                elif sound_file == "train-stopping.mp3":
+                    self.game.audio_manager.play_sound("train_stopping")
+                elif sound_file == "whispers.mp3":
+                    self.game.audio_manager.play_sound("whispers")
+                else:
+                    print(f"❌ Sonido no mapeado: {sound_file}")
+            else:
+                print("❌ AudioManager no disponible")
     
     def advance_dialogue(self):
         if not self.is_dialogue_active or not self.current_scene:
