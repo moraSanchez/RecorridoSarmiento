@@ -1,5 +1,5 @@
 # scenes/dialogues.py
-# Definición de las escenas y diálogos del juego COMMIT COMMIT 
+# Definición de las escenas y diálogos del juego COMMIT COMMIT COMMIT COMMIT 
 
 FIRST_SCENE = {
     "id": "first_scene",
