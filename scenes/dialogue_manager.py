@@ -242,20 +242,23 @@ class DialogueManager:
         if sound_file:
             print(f"Intentando reproducir: {sound_file}")
             
-            # DETENER SONIDO DEL TREN cuando suena train-stopping.mp3
             if sound_file == "train-stopping.mp3":
                 if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
                     self.game.audio_manager.stop_sound("train_sound")
-                    print("Sonido del tren detenido por frenado brusco")
             
             if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
-                # REPRODUCIR SONIDO con el audio_manager
                 if sound_file == "door-sound.mp3":
                     self.game.audio_manager.play_sound("door")
                 elif sound_file == "train-stopping.mp3":
                     self.game.audio_manager.play_sound("train_stopping")
                 elif sound_file == "whispers.mp3":
                     self.game.audio_manager.play_sound("whispers")
+                elif sound_file == "horror-sound.mp3":
+                    self.game.audio_manager.play_sound("horror")
+                elif sound_file == "sonido-tetrico.mp3":
+                    self.game.audio_manager.play_sound("tetrico")
+                elif sound_file == "breathing.mp3":
+                    self.game.audio_manager.play_sound("breathing")
                 else:
                     print(f"Sonido no mapeado: {sound_file}")
             else:

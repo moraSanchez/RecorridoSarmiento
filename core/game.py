@@ -133,12 +133,10 @@ class Game:
         self.load_game_scene.check_saved_games()
     
     def update(self):
-        pass
+        # Actualizar fades de audio - CORREGIDO: código indentado
+        self.audio_manager.update_fades()
     
     def draw(self):
-        # Pasar el estado actual al modal de ajustes
-        self.settings_modal.set_game_state(self.current_state)
-        
         if self.current_state == "MENU":
             self.menu_scene.draw()
         elif self.current_state == "ENTER_NAME":

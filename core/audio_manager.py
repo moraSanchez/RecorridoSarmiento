@@ -3,8 +3,8 @@ import os
 
 class AudioManager:
     def __init__(self):
-        self.master_volume = 1.0
-        self.ambient_volume = 1.0
+        self.master_volume = 0.5
+        self.ambient_volume = 0.5
         self.muted = False
         pygame.mixer.init()
         
@@ -27,14 +27,16 @@ class AudioManager:
                 "door": "door-sound.mp3", 
                 "train_stopping": "train-stopping.mp3",
                 "whispers": "whispers.mp3",
-                "train_sound": "train-sound.mp3"
+                "train_sound": "train-sound.mp3",
+                "horror": "horror-sound.mp3",
+                "tetrico": "sonido-tetrico.mp3",
+                "breathing": "breathing.mp3"
             }
             
             for key, filename in sound_files.items():
                 filepath = os.path.join(sounds_dir, filename)
                 if os.path.exists(filepath):
                     self.sounds[key] = pygame.mixer.Sound(filepath)
-                    print(f"Sonido cargado: {filename}")
                 else:
                     print(f"NO se encontró: {filename}")
                     
@@ -55,19 +57,25 @@ class AudioManager:
         
         for sound_key, sound_obj in self.sounds.items():
             if sound_key == "menu_music":
-                sound_obj.set_volume(overall_volume)
+                # Música del menú - VOLUMEN REDUCIDO al 25%
+                menu_volume = overall_volume * 0.25  # Solo 25% del volumen general
+                sound_obj.set_volume(menu_volume)
+            elif sound_key == "horror":
+                # SONIDO HORROR - VOLUMEN MÁXIMO
+                horror_volume = overall_volume * self.ambient_volume * 2.0  
+                horror_volume = min(1.0, horror_volume)  
+                sound_obj.set_volume(horror_volume)
             else:
+                # TODOS los otros efectos - usan volumen ambiente normal
                 sound_obj.set_volume(overall_volume * self.ambient_volume)
-        
-        current_music_volume = pygame.mixer.music.get_volume()
-        if current_music_volume > 0:
-            pygame.mixer.music.set_volume(overall_volume * self.ambient_volume)
     
     def play_menu_music(self):
         """Reproduce música del menú"""
         if "menu_music" in self.sounds:
+            # APLICAR VOLÚMENES antes de reproducir
+            self.apply_volumes()
             self.sounds["menu_music"].play(-1)
-    
+        
     def stop_menu_music(self):
         """Detiene música del menú"""
         if "menu_music" in self.sounds:

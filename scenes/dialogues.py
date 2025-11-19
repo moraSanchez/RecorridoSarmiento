@@ -170,7 +170,6 @@ THIRD_SCENE = {
 }
 
 
-# Cuarta Escena - Diálogo con el Linyera HASTA MERLO 
 FOURTH_SCENE = {
     "id": "fourth_scene",
     "background_sound": {
@@ -192,7 +191,12 @@ FOURTH_SCENE = {
         {
             "character": "Linyera", 
             "background": "linyera.jpg",
-            "text": "Merlo... ja. Este tren no para en Merlo hace años. Ni en ninguna estación que vos conozcas. Aunque bueno, no se si es peor esto o Merlo."
+            "text": "Merlo... ja. Este tren no para en Merlo hace años. Ni en ninguna estación que vos conozcas."
+        },
+        {
+            "character": "Linyera", 
+            "background": "linyera.jpg",
+            "text": "Aunque bueno, no se si es peor esto o Merlo..."
         },
         {
             "character": "[PLAYER_NAME]",
@@ -202,7 +206,7 @@ FOURTH_SCENE = {
         {
             "character": "Linyera",
             "background": "linyera.jpg",
-            "text": "Esas no son estaciones, pibe. Son... recuerdos. Y algunos recuerdos te persiguen."
+            "text": "Esas no son estaciones. Fijate bien."
         },
         {
             "character": "Linyera",
@@ -223,17 +227,12 @@ FOURTH_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background.train.jpg",
-            "text": "Merlo. Solo tengo que llegar a Merlo. Este tipo está claramente drogado o alcoholizado."
+            "text": "..."
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "background.train.jpg",
-            "text": "Aunque... ahora que lo pienso, el tren no hizo el anuncio de próxima estación. Y esa estación de afuera... no tiene cartel con el nombre."
-        },
-        {
-            "character": "[PLAYER_NAME]",
-            "background": "background.train.jpg",
-            "text": "¿Por qué siento un ambiente tan denso en el vagón?"
+            "text": "Ahora que lo pienso... el tren no hizo el anuncio de próxima estación. Y esa estación de afuera... no tiene cartel con el nombre."
         }
     ]
 }
@@ -256,7 +255,7 @@ FIFTH_SCENE = {
             "character": "",
             "background": "background-train.jpg",
             "sound": "whispers.mp3",
-            "text": "#@)/$|-..."
+            "text": "@#&*¡%$..."
         },
         {
             "character": "[PLAYER_NAME]",
@@ -269,17 +268,46 @@ FIFTH_SCENE = {
             "text": "¿Lo ves? Te dije. No son pasajeros lo que sube en estas paradas."
         },
         {
-            "character": "",
+            "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",  
             "sound": "door-sound.mp3",
             "text": "¡!", 
             "effect": "blink_black"  
         },
         {
-            "character": "",
-            "background": "background-train-dark.jpg",  
+            "character": "[PLAYER_NAME]",
+            "background": "background-train-dark.jpg",
+            "effect": "blink_black", 
+            "sound": "whispers.mp3",
             "text": "¿¡Eh!? ¿¡Que es todo esto...!?"
-        }
+        },
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",
+            "effect": "blink_black", 
+            "sound": "whispers.mp3",
+            "text": "."
+        },
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",
+            "effect": "blink_black", 
+            "sound": "whispers.mp3",
+            "text": ".."
+        },
+        {
+            "character": "",
+            "background": None,
+            "effect": "blink_black",
+            "sound": "horror-sound.mp3",
+            "text": "..."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "ghost.jpg",
+            "sound": "horror-sound.mp3",
+            "text": "!?"
+        },
     ]
 }
 
