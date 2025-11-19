@@ -319,10 +319,44 @@ FIFTH_SCENE = {
     ]
 }
 
+# Escena después de la supervivencia
+POST_SURVIVAL_SCENE = {
+    "id": "post_survival",
+    "background_sound": {
+        "file": "train-sound.mp3", 
+        "volume": 0.2,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "",
+            "background": "black.jpg",
+            "text": "...",
+            "effect": "blink_black"
+        },
+        {
+            "character": "",
+            "background": "background-train.jpg", 
+            "text": "(Después de unos segundos, las luces del vagón se normalizan. El fantasma ha desaparecido)."
+        },
+        {
+            "character": "NARRADOR",
+            "background": "background-train.jpg",
+            "text": "(Mi corazón... va a salirse del pecho. ¿Qué carajo fue eso? ¿Estoy soñando? Eso... eso no era humano.)"
+        },
+        {
+            "character": "Linyera", 
+            "background": "linyera.jpg",
+            "text": "Ya se fue... por ahora. Pero va a volver. Siempre vuelve."
+        }
+    ]
+}
+
 SCENES = {
     "first_scene": FIRST_SCENE,
     "second_scene": SECOND_SCENE,
     "third_scene": THIRD_SCENE,
     "fourth_scene": FOURTH_SCENE,
-    "fifth_scene": FIFTH_SCENE
+    "fifth_scene": FIFTH_SCENE,
+    "post_survival": POST_SURVIVAL_SCENE
 }

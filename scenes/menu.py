@@ -19,10 +19,7 @@ class MenuScene(BaseScene):
         ]
     
     def handle_events(self, event):
-        # Manejar ajustes primero (REEMPLAZADO)
-        if self.game.settings_modal.handle_events(event, self.game.current_state, self.game.player_id, self.game.player_name):
-            return True
-            
+        # Solo manejar botones del menú - ELIMINADA la llamada al modal viejo
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             for button in self.buttons:
@@ -50,5 +47,4 @@ class MenuScene(BaseScene):
     
     def draw(self):
         # Dibujar fondo y botones usando el SceneManager existente
-        # Eliminados los parámetros de volumen
         self.game.scene_manager.draw_menu(self.buttons)

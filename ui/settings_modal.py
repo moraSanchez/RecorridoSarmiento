@@ -51,10 +51,10 @@ class SettingsModal:
         self.SLIDER_HANDLE = (200, 200, 200)
         self.TEXT_COLOR = (255, 255, 255)
         
-        # Cargar volúmenes actuales
+        # Cargar volúmenes actuales - CORREGIDO PARA USAR TUS CLAVES
         volume_data = self.audio_manager.get_volume_data()
-        self.volume_modal["sliders"][0]["value"] = volume_data["volume_level"]
-        self.volume_modal["sliders"][1]["value"] = volume_data["ambient_volume"]
+        self.volume_modal["sliders"][0]["value"] = volume_data["volume_level"]      # ← CORREGIDO
+        self.volume_modal["sliders"][1]["value"] = volume_data["ambient_volume"]    # ← CORREGIDO
     
     def load_settings_icon(self):
         try:
@@ -158,9 +158,9 @@ class SettingsModal:
         slider["value"] = new_value
         
         if slider["label"] == "Volumen general":
-            self.audio_manager.set_volume(new_value)
+            self.audio_manager.set_volume(new_value)  # ← Esto llama a set_volume() de tu AudioManager
         elif slider["label"] == "Volumen ambiente":
-            self.audio_manager.set_ambient_volume(new_value)
+            self.audio_manager.set_ambient_volume(new_value)  # ← Esto llama a set_ambient_volume() de tu AudioManager
     
     def save_and_exit(self, player_id, player_name):
         if player_name:

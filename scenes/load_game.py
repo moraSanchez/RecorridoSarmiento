@@ -51,9 +51,7 @@ class LoadGameScene:
             self.scroll_offset = 0
     
     def handle_events(self, event):
-        if self.game.settings_modal.handle_events(event, self.game.current_state, self.game.player_id, self.game.player_name):
-            return True
-
+        # ELIMINADA la llamada al modal viejo - solo manejar eventos de carga
         if event.type == pygame.KEYDOWN:
             if self.load_game_state == "SELECT_PLAYER":
                 if event.key == pygame.K_UP:

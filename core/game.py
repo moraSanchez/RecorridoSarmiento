@@ -68,6 +68,7 @@ class Game:
                 if self.survival_scene.handle_events(event):
                     continue
             
+            # MANEJAR MODAL DE AJUSTES
             modal_result = self.settings_modal.handle_events(event, self.current_state, self.player_id, self.player_name)
             if modal_result == "MENU":
                 self.current_state = "MENU"
