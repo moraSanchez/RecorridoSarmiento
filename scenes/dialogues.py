@@ -70,17 +70,17 @@ THIRD_SCENE = {
         {
             "character": "", 
             "background": "background-train.jpg",
-            "text": "Tiene un olor fuerte a alcohol, bueno, tiene una caja de Termidor en la mano… y su higiene no es muy buena. Me da mala vibra."
+            "text": "Tiene un olor fuerte a alcohol, bueno, tiene una caja de Termidor en la mano… y su higiene no es muy buena."
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagón."
+            "text": "(Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagón.)"
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "No quiero prejuzgar, pero tampoco quiero que me roben, ¿debería hacerme el copado y saludar o simplemente ignorarlo?"
+            "text": "(No quiero prejuzgar, pero tampoco quiero que me roben o algo, ¿debería ser educado y saludar o simplemente ignorarlo?)"
         }
         
     ],
@@ -103,12 +103,17 @@ THIRD_SCENE = {
                     {
                         "character": "???",
                         "background": "linyera.jpg", 
-                        "text": "Noches buenas no hay en este tren, pibe. Solo noches."
+                        "text": "Noches buenas no hay en este tren. Solo noches."
                     },
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "(¿Y este loco? Se ponia filosofo de la nada… Que carajos.)"
+                        "text": "(¿Eh...?)"
+                    },
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "(¿Y este loco? Se ponia filosofo de la nada… ¿Que carajos?)"
                     },
                     {
                         "character": "[PLAYER_NAME]",
@@ -123,7 +128,7 @@ THIRD_SCENE = {
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "(No se si quiero tenerlo tan lejos, me voy a sentar al fondo.)"
+                        "text": "(No... no se si quiero tenerlo tan lejos de mi vista, me voy a sentar al fondo mejor.)"
                     },
                     {
                         "character": "[PLAYER_NAME]",
@@ -177,22 +182,27 @@ FOURTH_SCENE = {
         {
             "character": "Linyera",
             "background": "linyera.jpg",
-            "text": "Vos no tendrías que estar acá, pibe. Este no es tu tren."
+            "text": "¿Como terminaste acá?"
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Este no es tu tren."
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "¿Cómo que no es mi tren? Es el Sarmiento, voy hasta Merlo."
+            "text": "¿Cómo que no es mi tren? Es el Sarmiento, voy hasta Merlo. Pensé que habia perdido el ultimo tren y..."
         },
         {
             "character": "Linyera", 
             "background": "linyera.jpg",
-            "text": "Merlo... ja. Este tren no para en Merlo hace años. Ni en ninguna estación que vos conozcas."
+            "text": "Merlo... ja. Este tren no para en Merlo hace años. Al menos no el Merlo que conocecias."
         },
         {
             "character": "Linyera", 
             "background": "linyera.jpg",
-            "text": "Aunque bueno, no se si es peor esto o Merlo..."
+            "text": "Aunque bueno, no se que es peor..."
         },
         {
             "character": "[PLAYER_NAME]",
@@ -244,8 +254,8 @@ FIFTH_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "sound": "train-stopping.mp3",
-            "text": "El tren frenó de golpe. ¿Ésta es Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces están todas apagadas. Qué mierda."
+            "sound": "sonido-tetrico.mp3",
+            "text": "El tren frenó de golpe. ¿Será... Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces están todas apagadas. Que raro."
         },
         {
             "character": "",
@@ -304,11 +314,15 @@ FIFTH_SCENE = {
             "sound": "horror-sound.mp3",
             "text": "!?"
         },
-        # ESTA LÍNEA MUESTRA EL DIÁLOGO DEL LINYERA
         {
             "character": "Linyera",
             "background": "ghost.jpg", 
-            "text": "Escuchame. No seas boludo y hace como que no hay nada."
+            "text": "Escuchame. No seas boludo y hace como que no hay nada. "
+        },
+        {
+            "character": "Linyera",
+            "background": "ghost.jpg", 
+            "text": "No la mires..."
         },
         # ESTA LÍNEA ACTIVA LA SUPERVIVENCIA PERO NO SE VE - SIN TEXTO
         {
