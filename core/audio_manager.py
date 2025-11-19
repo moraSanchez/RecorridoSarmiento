@@ -30,7 +30,7 @@ class AudioManager:
                 "horror": "horror-sound.mp3",
                 "tetrico": "sonido-tetrico.mp3",
                 "breathing": "breathing.mp3",
-                "ghost-scream": "ghost-scream.mp3"
+                "scream": "scream.mp3"
             }
             
             for key, filename in sound_files.items():

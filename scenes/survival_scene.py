@@ -18,7 +18,7 @@ class SurvivalScene:
         self.survival_duration = 8
         self.ghost_appear_time = 0
         self.ghost_visible = False
-        self.ghost_duration = 3.0  # AUMENTADO a 3 segundos
+        self.ghost_duration = 3.0
         self.ghost_stare_time = 0
         self.stare_effect_active = False
         self.first_scare_triggered = False
@@ -107,8 +107,8 @@ class SurvivalScene:
                 self.eyes_closed = True
                 self.show_instructions = False
                 
-                # Reproducir breathing SOLO cuando cierra los ojos
-                if hasattr(self.game, 'audio_manager'):
+                # Solo reproducir breathing si NO hay fantasma visible
+                if hasattr(self.game, 'audio_manager') and not self.ghost_visible:
                     self.game.audio_manager.stop_all_sounds()
                     self.game.audio_manager.play_sound("breathing")
                 print("Ojos CERRADOS - Breathing activado")
@@ -119,17 +119,10 @@ class SurvivalScene:
                 self.space_pressed = False
                 self.eyes_closed = False
                 
-                # Lógica de sonidos corregida
+                # Solo detener breathing si NO hay fantasma visible
                 if hasattr(self.game, 'audio_manager'):
-                    self.game.audio_manager.stop_sound("breathing")
-                    
-                    # Si el fantasma está visible y abres los ojos → SCREAM
-                    if self.ghost_visible and not self.scream_played:
-                        self.game.audio_manager.play_sound("ghost-scream")
-                        self.scream_played = True
-                        print("Ojos ABIERTOS - ¡SCREAM!")
-                    else:
-                        # Si no hay fantasma, reproducir horror normal
+                    if not self.ghost_visible:
+                        self.game.audio_manager.stop_sound("breathing")
                         self.game.audio_manager.play_sound("horror")
                         print("Ojos ABIERTOS - Horror normal")
                 return True
@@ -175,18 +168,13 @@ class SurvivalScene:
         self.scream_played = False
         self.first_scare_triggered = True
         
-        # CORREGIDO: Ahora el fantasma SIEMPRE reproduce el grito, sin importar los ojos
+        # SOLO reproducir el grito del fantasma, NADA MÁS
         if hasattr(self.game, 'audio_manager'):
             self.game.audio_manager.stop_all_sounds()
-            
-            # SIEMPRE reproducir el grito del fantasma
-            self.game.audio_manager.play_sound("ghost-scream")
+            self.game.audio_manager.play_sound("scream")
             self.scream_played = True
             
-            if self.eyes_closed:
-                print("Fantasma aparece con ojos CERRADOS - ¡SCREAM!")
-            else:
-                print("Fantasma aparece con ojos ABIERTOS - ¡SCREAM!")
+            print("¡FANTASMA APARECE - SCREAM ACTIVADO!")
     
     def end_survival(self):
         """Termina la escena de supervivencia"""
@@ -261,7 +249,7 @@ class SurvivalScene:
         else:
             base_surface.fill((30, 0, 30))
         
-        # CORREGIDO: MOSTRAR SCREAMER SIEMPRE que el fantasma esté visible, sin importar si los ojos están cerrados
+        # MOSTRAR SCREAMER SIEMPRE que el fantasma esté visible, sin importar si los ojos están cerrados
         if self.ghost_visible and self.screamer_image:
             base_surface.blit(self.screamer_image, (0, 0))
         
