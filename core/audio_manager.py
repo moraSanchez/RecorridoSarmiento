@@ -29,7 +29,8 @@ class AudioManager:
                 "train_sound": "train-sound.mp3",
                 "horror": "horror-sound.mp3",
                 "tetrico": "sonido-tetrico.mp3",
-                "breathing": "breathing.mp3"
+                "breathing": "breathing.mp3",
+                "ghost-scream": "ghost-scream.mp3"
             }
             
             for key, filename in sound_files.items():
@@ -132,6 +133,16 @@ class AudioManager:
                     self.current_train_sound = None
                 print(f"Sonido detenido: {sound_name}")
     
+    def stop_all_sounds(self):
+        """Detiene TODOS los sonidos activos"""
+        for sound_name, sound_obj in self.sounds.items():
+            sound_obj.stop()
+        pygame.mixer.music.stop()
+        self.current_train_sound = None
+        self.fade_out_sound = None
+        self.fade_in_sound = None
+        print("Todos los sonidos detenidos")
+    
     def fade_out_train_sound(self, fade_duration=1.0):
         """Fade out específico para el sonido del tren"""
         if self.current_train_sound:
@@ -174,15 +185,6 @@ class AudioManager:
                 if fade_data['sound'] == self.sounds.get("train_sound"):
                     self.current_train_sound = None
                 self.fade_out_sound = None
-    
-    def stop_all_sounds(self):
-        """Detiene TODOS los sonidos"""
-        for sound in self.sounds.values():
-            sound.stop()
-        pygame.mixer.music.stop()
-        self.current_train_sound = None
-        self.fade_out_sound = None
-        self.fade_in_sound = None
     
     def get_volume_data(self):
         return {

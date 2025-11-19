@@ -1,6 +1,4 @@
 # scenes/dialogues.py
-# Definición de las escenas y diálogos del juego COMMIT COMMIT COMMIT COMMIT 
-
 FIRST_SCENE = {
     "id": "first_scene",
     "lines": [
@@ -27,7 +25,6 @@ FIRST_SCENE = {
     ]
 }
 
-# SEGUNDA ESCENA - Con fondo negro y sonido de puertas
 SECOND_SCENE = {
     "id": "second_scene",
     "lines": [
@@ -169,7 +166,6 @@ THIRD_SCENE = {
     }
 }
 
-
 FOURTH_SCENE = {
     "id": "fourth_scene",
     "background_sound": {
@@ -236,8 +232,6 @@ FOURTH_SCENE = {
         }
     ]
 }
-
-# En scenes/dialogues.py, modifica la FIFTH_SCENE:
 
 FIFTH_SCENE = {
     "id": "fifth_scene",
@@ -310,11 +304,17 @@ FIFTH_SCENE = {
             "sound": "horror-sound.mp3",
             "text": "!?"
         },
-        # Esta línea activará la mecánica de supervivencia
+        # ESTA LÍNEA MUESTRA EL DIÁLOGO DEL LINYERA
+        {
+            "character": "Linyera",
+            "background": "ghost.jpg", 
+            "text": "Escuchame. No seas boludo y hace como que no hay nada."
+        },
+        # ESTA LÍNEA ACTIVA LA SUPERVIVENCIA PERO NO SE VE - SIN TEXTO
         {
             "character": "SURVIVAL_START",
-            "background": "background-train-dark.jpg",
-            "text": "INICIAR_MECANICA_SUPERVIVENCIA"
+            "background": "ghost.jpg",
+            "text": ""
         }
     ]
 }

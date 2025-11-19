@@ -120,10 +120,13 @@ class Game:
                     self.start_survival_scene()
                     
             elif event.key == pygame.K_ESCAPE:
-                self.current_state = "MENU"
-                self.in_survival_scene = False
-                self.audio_manager.stop_all_sounds()
-                self.audio_manager.play_menu_music()
+                # ESC sale de la supervivencia también
+                if self.in_survival_scene:
+                    self.end_survival_scene()
+                else:
+                    self.current_state = "MENU"
+                    self.audio_manager.stop_all_sounds()
+                    self.audio_manager.play_menu_music()
         
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -158,7 +161,8 @@ class Game:
     def end_survival_scene(self):
         """Termina la escena de supervivencia y continúa con el diálogo"""
         self.in_survival_scene = False
-        
+        # Detener todos los sonidos de la supervivencia
+        self.audio_manager.stop_all_sounds()
         # Avanzar a la siguiente escena después de la supervivencia
         self.advance_to_next_scene()
     
@@ -172,17 +176,6 @@ class Game:
         # Actualizar escena de supervivencia si está activa
         if self.in_survival_scene:
             self.survival_scene.update()
-            
-            # Verificar si la escena de supervivencia terminó
-            if self.survival_scene.state in ["SUCCESS", "FAILURE"]:
-                # Para éxito, continuar con el juego
-                if self.survival_scene.state == "SUCCESS":
-                    # El survival_scene manejará la transición al diálogo de éxito
-                    pass
-                # Para fallo, ya se maneja dentro del survival_scene
-                elif self.survival_scene.state == "FAILURE":
-                    # El survival_scene maneja el regreso al menú
-                    pass
     
     def draw(self):
         if self.in_survival_scene:
