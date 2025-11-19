@@ -237,6 +237,8 @@ FOURTH_SCENE = {
     ]
 }
 
+# En scenes/dialogues.py, modifica la FIFTH_SCENE:
+
 FIFTH_SCENE = {
     "id": "fifth_scene",
     "background_sound": {
@@ -308,6 +310,12 @@ FIFTH_SCENE = {
             "sound": "horror-sound.mp3",
             "text": "!?"
         },
+        # Esta línea activará la mecánica de supervivencia
+        {
+            "character": "SURVIVAL_START",
+            "background": "background-train-dark.jpg",
+            "text": "INICIAR_MECANICA_SUPERVIVENCIA"
+        }
     ]
 }
 

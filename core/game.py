@@ -8,6 +8,7 @@ from scenes.scenes_manager import SceneManager
 from scenes.dialogue_manager import DialogueManager
 from scenes.menu import MenuScene
 from scenes.load_game import LoadGameScene
+from scenes.survival_scene import SurvivalScene
 from utils.database import db_manager
 from core.audio_manager import AudioManager
 from ui.settings_modal import SettingsModal
@@ -41,6 +42,10 @@ class Game:
         self.menu_scene = MenuScene(self)
         self.load_game_scene = LoadGameScene(self)
         
+        # AGREGAR ESCENA DE SUPERVIVENCIA
+        self.survival_scene = SurvivalScene(self)
+        self.in_survival_scene = False
+        
         # CONECTAR dialogue_manager con game (IMPORTANTE para que funcione AudioManager)
         self.dialogue_manager.game = self
         
@@ -58,9 +63,15 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
             
+            # MANEJAR ESCENA DE SUPERVIVENCIA PRIMERO
+            if self.in_survival_scene:
+                if self.survival_scene.handle_events(event):
+                    continue
+            
             modal_result = self.settings_modal.handle_events(event, self.current_state, self.player_id, self.player_name)
             if modal_result == "MENU":
                 self.current_state = "MENU"
+                self.in_survival_scene = False
                 self.audio_manager.stop_all_sounds()
                 self.audio_manager.play_menu_music()
                 continue
@@ -105,9 +116,12 @@ class Game:
                 result = self.dialogue_manager.advance_dialogue()
                 if result == "scene_end":
                     self.advance_to_next_scene()
+                elif result == "survival_start":
+                    self.start_survival_scene()
                     
             elif event.key == pygame.K_ESCAPE:
                 self.current_state = "MENU"
+                self.in_survival_scene = False
                 self.audio_manager.stop_all_sounds()
                 self.audio_manager.play_menu_music()
         
@@ -116,6 +130,8 @@ class Game:
                 result = self.dialogue_manager.advance_dialogue()
                 if result == "scene_end":
                     self.advance_to_next_scene()
+                elif result == "survival_start":
+                    self.start_survival_scene()
         
         self.dialogue_manager.handle_choice_events(event)
     
@@ -130,8 +146,21 @@ class Game:
             self.dialogue_manager.load_scene(next_scene, self.player_name)
         else:
             self.current_state = "MENU"
+            self.in_survival_scene = False
             self.audio_manager.stop_all_sounds()
             self.audio_manager.play_menu_music()
+    
+    def start_survival_scene(self):
+        """Inicia la escena de supervivencia"""
+        self.in_survival_scene = True
+        self.survival_scene.start()
+    
+    def end_survival_scene(self):
+        """Termina la escena de supervivencia y continúa con el diálogo"""
+        self.in_survival_scene = False
+        
+        # Avanzar a la siguiente escena después de la supervivencia
+        self.advance_to_next_scene()
     
     def check_saved_games(self):
         self.load_game_scene.check_saved_games()
@@ -139,9 +168,26 @@ class Game:
     def update(self):
         # Actualizar fades de audio
         self.audio_manager.update_fades()
+        
+        # Actualizar escena de supervivencia si está activa
+        if self.in_survival_scene:
+            self.survival_scene.update()
+            
+            # Verificar si la escena de supervivencia terminó
+            if self.survival_scene.state in ["SUCCESS", "FAILURE"]:
+                # Para éxito, continuar con el juego
+                if self.survival_scene.state == "SUCCESS":
+                    # El survival_scene manejará la transición al diálogo de éxito
+                    pass
+                # Para fallo, ya se maneja dentro del survival_scene
+                elif self.survival_scene.state == "FAILURE":
+                    # El survival_scene maneja el regreso al menú
+                    pass
     
     def draw(self):
-        if self.current_state == "MENU":
+        if self.in_survival_scene:
+            self.survival_scene.draw()
+        elif self.current_state == "MENU":
             self.menu_scene.draw()
         elif self.current_state == "ENTER_NAME":
             self.scene_manager.draw_name_input_screen(self.current_text)
@@ -163,3 +209,7 @@ class Game:
             clock.tick(60)
         
         pygame.quit()
+
+if __name__ == "__main__":
+    game = Game()
+    game.run()

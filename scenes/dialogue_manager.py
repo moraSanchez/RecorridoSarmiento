@@ -164,7 +164,6 @@ class DialogueManager:
                             train_sound.play(-1)  # Loop para el sonido del tren
                         
                         self.game.audio_manager.current_train_sound = train_sound
-                        print(f"Sonido de tren iniciado: {sound_file}")
                     else:
                         # Para otros sonidos de fondo, usar pygame.mixer.music
                         sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
@@ -180,7 +179,6 @@ class DialogueManager:
                                 pygame.mixer.music.play()
                                 
                             self.current_background_sound = background_sound_data
-                            print(f"Background sound cargado: {sound_file}")
                         else:
                             print(f"Background sound no encontrado: {sound_file}")
                 else:
@@ -240,16 +238,12 @@ class DialogueManager:
         sound_file = current_line.get("sound", "")
         
         if sound_file:
-            print(f"Intentando reproducir: {sound_file}")
             
-            # DETENER SONIDO DEL TREN cuando suena train-stopping.mp3
             if sound_file == "train-stopping.mp3":
                 if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
                     self.game.audio_manager.stop_sound("train_sound")
-                    print("Sonido del tren detenido por frenado brusco")
             
             if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
-                # REPRODUCIR SONIDO con el audio_manager
                 if sound_file == "door-sound.mp3":
                     self.game.audio_manager.play_sound("door")
                 elif sound_file == "train-stopping.mp3":
@@ -276,11 +270,18 @@ class DialogueManager:
             
         if self.showing_choice:
             return False
-            
+        
+        current_line = self.get_current_line()
+
         self.current_line_index += 1
         self.effect_completed = False
         self.next_background = None  
         
+        # Verificar si la línea actual activa la supervivencia
+        if (current_line and current_line.get("character") == "SURVIVAL_START" and 
+            hasattr(self, 'game')):
+            return "survival_start"
+
         if (self.current_line_index >= len(self.current_scene["lines"]) and 
             "choice" in self.current_scene):
             self._show_choice()
@@ -512,7 +513,7 @@ class DialogueManager:
     def draw_continue_indicator(self):
         indicator_font = pygame.font.SysFont("arial", 18)
         indicator_text = indicator_font.render("Presiona ESPACIO o CLIC para continuar", True, (180, 180, 180))
-        self.screen.blit(indicator_text, (self.WIDTH - indicator_text.get_width() - 30, self.HEIGHT - 40))
+        self.screen.blit(indicator_text, (self.WIDTH - indicator_text.get_width() - 70, self.HEIGHT - 60))
     
     def skip_to_end(self):
         if not self.is_dialogue_active or not self.current_scene:
