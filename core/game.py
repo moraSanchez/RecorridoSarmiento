@@ -44,6 +44,9 @@ class Game:
         # CONECTAR dialogue_manager con game (IMPORTANTE para que funcione AudioManager)
         self.dialogue_manager.game = self
         
+        # APLICAR VOLÚMENES ANTES de reproducir el menú
+        self.audio_manager.apply_volumes()
+        
         # REPRODUCIR música del menú al iniciar
         self.audio_manager.play_menu_music()
         
@@ -58,6 +61,7 @@ class Game:
             modal_result = self.settings_modal.handle_events(event, self.current_state, self.player_id, self.player_name)
             if modal_result == "MENU":
                 self.current_state = "MENU"
+                self.audio_manager.stop_all_sounds()
                 self.audio_manager.play_menu_music()
                 continue
             elif modal_result:
@@ -133,7 +137,7 @@ class Game:
         self.load_game_scene.check_saved_games()
     
     def update(self):
-        # Actualizar fades de audio - CORREGIDO: código indentado
+        # Actualizar fades de audio
         self.audio_manager.update_fades()
     
     def draw(self):

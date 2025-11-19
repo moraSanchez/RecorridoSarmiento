@@ -3,19 +3,18 @@ import os
 
 class AudioManager:
     def __init__(self):
-        self.master_volume = 0.5
-        self.ambient_volume = 0.5
+        self.master_volume = 0.5   
+        self.ambient_volume = 0.5  
         self.muted = False
         pygame.mixer.init()
         
         self.sounds = {}
         self.load_sounds()
         
-        # Variables para controlar transiciones suaves
         self.current_train_sound = None
         self.fade_out_sound = None
         self.fade_in_sound = None
-        self.fade_duration = 1.0  # segundos para el fade
+        self.fade_duration = 1.0 
         self.fade_start_time = 0
         
     def load_sounds(self):
@@ -52,30 +51,29 @@ class AudioManager:
         self.apply_volumes()
     
     def apply_volumes(self):
-        """Aplica los volúmenes a TODOS los sonidos"""
+        """Aplica los volúmenes CORRECTAMENTE"""
         overall_volume = 0.0 if self.muted else self.master_volume
+        ambient_volume = 0.0 if self.muted else self.ambient_volume
         
         for sound_key, sound_obj in self.sounds.items():
             if sound_key == "menu_music":
-                # Música del menú - VOLUMEN REDUCIDO al 25%
-                menu_volume = overall_volume * 0.25  # Solo 25% del volumen general
+                # Música del menú - usa SOLO volumen general (reducido al 25%)
+                menu_volume = overall_volume * 0.25
                 sound_obj.set_volume(menu_volume)
             elif sound_key == "horror":
-                # SONIDO HORROR - VOLUMEN MÁXIMO
-                horror_volume = overall_volume * self.ambient_volume * 2.0  
+                # SONIDO HORROR - usa volumen ambiente PERO al doble
+                horror_volume = ambient_volume * 2.0  
                 horror_volume = min(1.0, horror_volume)  
                 sound_obj.set_volume(horror_volume)
             else:
-                # TODOS los otros efectos - usan volumen ambiente normal
-                sound_obj.set_volume(overall_volume * self.ambient_volume)
+                # TODOS los otros efectos - usan SOLO volumen ambiente
+                sound_obj.set_volume(ambient_volume)
     
     def play_menu_music(self):
         """Reproduce música del menú"""
         if "menu_music" in self.sounds:
-            # APLICAR VOLÚMENES antes de reproducir
-            self.apply_volumes()
             self.sounds["menu_music"].play(-1)
-        
+    
     def stop_menu_music(self):
         """Detiene música del menú"""
         if "menu_music" in self.sounds:

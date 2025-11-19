@@ -18,31 +18,21 @@ class SettingsModal:
             "clicked": False
         }
         
-        # Configuración para diferentes estados del juego - MÁS ANCHO
-        self.menu_modal = {
-            "rect": pygame.Rect(width//2 - 250, height//2 - 150, 500, 200),  # 500px de ancho (antes 400)
+        self.settings_modal = {
+            "rect": pygame.Rect(width//2 - 200, height//2 - 150, 400, 300),
             "buttons": [
-                {"text": "Volumen", "rect": pygame.Rect(0, 0, 400, 50), "action": "VOLUME"}  # Botón más ancho
+                {"text": "Guardar partida y salir", "rect": pygame.Rect(0, 0, 300, 50), "action": "SAVE_EXIT"},
+                {"text": "Volumen", "rect": pygame.Rect(0, 0, 300, 50), "action": "VOLUME"}
             ]
         }
         
-        self.playing_modal = {
-            "rect": pygame.Rect(width//2 - 250, height//2 - 150, 500, 300),  # 500px de ancho (antes 400)
-            "buttons": [
-                {"text": "Guardar partida y salir", "rect": pygame.Rect(0, 0, 400, 50), "action": "SAVE_EXIT"},
-                {"text": "Volumen", "rect": pygame.Rect(0, 0, 400, 50), "action": "VOLUME"},
-                {"text": "Volver atrás", "rect": pygame.Rect(0, 0, 400, 50), "action": "BACK"}
-            ]
-        }
-        
-        # Modal de volumen MÁS ANCHO
         self.volume_modal = {
-            "rect": pygame.Rect(width//2 - 300, height//2 - 175, 600, 350),  # 600px de ancho (antes 500)
+            "rect": pygame.Rect(width//2 - 250, height//2 - 175, 500, 350),
             "sliders": [
-                {"label": "Volumen general", "value": 1.0, "rect": pygame.Rect(0, 0, 400, 20), "dragging": False},  # Sliders más anchos
-                {"label": "Volumen ambiente", "value": 1.0, "rect": pygame.Rect(0, 0, 400, 20), "dragging": False}
+                {"label": "Volumen general", "value": 1.0, "rect": pygame.Rect(0, 0, 300, 20), "dragging": False},
+                {"label": "Volumen ambiente", "value": 1.0, "rect": pygame.Rect(0, 0, 300, 20), "dragging": False}
             ],
-            "close_button": {"rect": pygame.Rect(0, 0, 150, 40), "text": "Volver atrás"}  # Botón más ancho
+            "close_button": {"rect": pygame.Rect(0, 0, 100, 40), "text": "Cerrar"}
         }
         
         self.settings_icon = self.load_settings_icon()
@@ -51,30 +41,15 @@ class SettingsModal:
         self.button_font = pygame.font.SysFont("arial", 24)
         self.slider_font = pygame.font.SysFont("arial", 20)
         
-        # COLORES EN BLANCO Y NEGRO
-        self.DIALOGUE_BOX = (29, 29, 29)
-        self.NAME_BOX = (17, 17, 17)
-        self.BORDER_COLOR = (35, 35, 35)
-        self.WHITE = (255, 255, 255)
-        self.BLACK = (0, 0, 0)
-        
-        # Nueva paleta de grises
-        self.GRAY_DARK = (40, 40, 40)        # Fondo modal
-        self.GRAY_MEDIUM = (80, 80, 80)      # Botones normales / bordes
-        self.GRAY_LIGHT = (120, 120, 120)    # Botones hover
-        self.GRAY_LIGHTER = (160, 160, 160)  # Botones clicked / slider fill
-        self.GRAY_SLIDER_BG = (30, 30, 30)   # Fondo slider
-        
-        # Aplicar colores a los elementos del modal
-        self.MODAL_BG = self.GRAY_DARK
-        self.MODAL_BORDER = self.GRAY_MEDIUM
-        self.BUTTON_NORMAL = self.GRAY_MEDIUM
-        self.BUTTON_HOVER = self.GRAY_LIGHT
-        self.BUTTON_ACTIVE = self.GRAY_LIGHTER
-        self.SLIDER_BG = self.GRAY_SLIDER_BG
-        self.SLIDER_FILL = self.GRAY_LIGHTER
-        self.SLIDER_HANDLE = self.WHITE
-        self.TEXT_COLOR = self.WHITE
+        self.MODAL_BG = (40, 40, 40, 240)
+        self.MODAL_BORDER = (80, 80, 80)
+        self.BUTTON_NORMAL = (60, 60, 100)
+        self.BUTTON_HOVER = (80, 80, 120)
+        self.BUTTON_ACTIVE = (100, 100, 150)
+        self.SLIDER_BG = (30, 30, 30)
+        self.SLIDER_FILL = (100, 200, 100)
+        self.SLIDER_HANDLE = (200, 200, 200)
+        self.TEXT_COLOR = (255, 255, 255)
         
         # Cargar volúmenes actuales
         volume_data = self.audio_manager.get_volume_data()
@@ -94,19 +69,11 @@ class SettingsModal:
     
     def create_temp_icon(self):
         icon = pygame.Surface((40, 40), pygame.SRCALPHA)
-        # Icono en blanco
-        pygame.draw.rect(icon, self.WHITE, (5, 5, 30, 30), border_radius=5)
-        pygame.draw.circle(icon, self.WHITE, (20, 12), 3)
-        pygame.draw.circle(icon, self.WHITE, (20, 20), 3)
-        pygame.draw.circle(icon, self.WHITE, (20, 28), 3)
+        pygame.draw.rect(icon, (200, 200, 200), (5, 5, 30, 30), border_radius=5)
+        pygame.draw.circle(icon, (200, 200, 200), (20, 12), 3)
+        pygame.draw.circle(icon, (200, 200, 200), (20, 20), 3)
+        pygame.draw.circle(icon, (200, 200, 200), (20, 28), 3)
         return icon
-    
-    def get_current_modal(self, game_state):
-        """Devuelve la configuración del modal según el estado del juego"""
-        if game_state == "MENU":
-            return self.menu_modal
-        else:
-            return self.playing_modal
     
     def handle_events(self, event, game_state, player_id=None, player_name=None):
         mouse_pos = pygame.mouse.get_pos()
@@ -121,17 +88,15 @@ class SettingsModal:
                     return True
                 
                 elif self.settings_visible and not self.volume_modal_visible:
-                    current_modal = self.get_current_modal(game_state)
-                    modal_rect = current_modal["rect"]
+                    modal_rect = self.settings_modal["rect"]
                     
-                    # Verificar clic en la X de cerrar
                     close_rect = pygame.Rect(modal_rect.right - 40, modal_rect.y + 10, 30, 30)
                     if close_rect.collidepoint(mouse_pos):
                         self.settings_visible = False
                         return True
                     
                     if modal_rect.collidepoint(mouse_pos):
-                        for button in current_modal["buttons"]:
+                        for button in self.settings_modal["buttons"]:
                             if button["rect"].collidepoint(mouse_pos):
                                 if button["action"] == "SAVE_EXIT":
                                     return self.save_and_exit(player_id, player_name)
@@ -139,15 +104,13 @@ class SettingsModal:
                                     self.volume_modal_visible = True
                                     return True
                     
-                    # Clic fuera del modal lo cierra (SOLO para menú)
-                    if game_state == "MENU" and not modal_rect.collidepoint(mouse_pos):
+                    if not modal_rect.collidepoint(mouse_pos):
                         self.settings_visible = False
                         return True
                 
                 elif self.volume_modal_visible:
                     volume_rect = self.volume_modal["rect"]
                     
-                    # Verificar clic en la X de cerrar del volumen
                     close_rect = pygame.Rect(volume_rect.right - 40, volume_rect.y + 10, 30, 30)
                     if close_rect.collidepoint(mouse_pos):
                         self.volume_modal_visible = False
@@ -160,15 +123,10 @@ class SettingsModal:
                                 self.handle_slider_click(slider, mouse_pos)
                                 return True
                         
-                        # Botón "Volver atrás" (vuelve al modal anterior)
                         if self.volume_modal["close_button"]["rect"].collidepoint(mouse_pos):
                             self.volume_modal_visible = False
-                            # En el menú, al volver del volumen, cierra todo
-                            if game_state == "MENU":
-                                self.settings_visible = False
                             return True
                     
-                    # Clic fuera del modal de volumen lo cierra completamente
                     elif not volume_rect.collidepoint(mouse_pos):
                         self.volume_modal_visible = False
                         self.settings_visible = False
@@ -205,7 +163,6 @@ class SettingsModal:
             self.audio_manager.set_ambient_volume(new_value)
     
     def save_and_exit(self, player_id, player_name):
-        """Guarda la partida y sale al menú"""
         if player_name:
             success = self.db_manager.guardar_jugador(player_name)
             if success:
@@ -214,13 +171,12 @@ class SettingsModal:
                 return "MENU"
         return None
     
-    def update_modal_positions(self, game_state):
-        current_modal = self.get_current_modal(game_state)
-        modal_rect = current_modal["rect"]
+    def update_modal_positions(self):
+        modal_rect = self.settings_modal["rect"]
         modal_rect.center = (self.WIDTH // 2, self.HEIGHT // 2)
         
-        button_y = modal_rect.y + 80
-        for button in current_modal["buttons"]:
+        button_y = modal_rect.y + 100
+        for button in self.settings_modal["buttons"]:
             button["rect"].x = modal_rect.x + (modal_rect.width - button["rect"].width) // 2
             button["rect"].y = button_y
             button_y += 70
@@ -234,43 +190,38 @@ class SettingsModal:
             slider["rect"].y = slider_y
             slider_y += 80
         
-        # BOTÓN "VOLVER ATRÁS" MÁS ARRIBA - 40px menos desde abajo
         close_btn = self.volume_modal["close_button"]
         close_btn["rect"].x = volume_rect.x + (volume_rect.width - close_btn["rect"].width) // 2
-        close_btn["rect"].y = volume_rect.y + volume_rect.height - 100  # 100px desde abajo (antes 60)
+        close_btn["rect"].y = volume_rect.y + volume_rect.height - 60
     
     def draw(self, screen):
-        game_state = "MENU" if not hasattr(self, '_last_game_state') else self._last_game_state
-        
-        self.update_modal_positions(game_state)
+        self.update_modal_positions()
         self.draw_settings_button(screen)
         
-        if self.settings_visible:
-            if self.volume_modal_visible:
-                self.draw_volume_modal(screen)
-            else:
-                self.draw_settings_modal(screen, game_state)
+        if self.volume_modal_visible:
+            self.draw_volume_modal(screen)
+        elif self.settings_visible:
+            self.draw_settings_modal(screen)
     
     def draw_settings_button(self, screen):
         button_rect = self.settings_button["rect"]
         
         if self.settings_button["clicked"]:
-            color = self.GRAY_LIGHTER
+            color = (100, 100, 100)
         elif self.settings_button["hover"]:
-            color = self.GRAY_LIGHT
+            color = (80, 80, 80)
         else:
-            color = self.GRAY_MEDIUM
+            color = (60, 60, 60)
         
         pygame.draw.rect(screen, color, button_rect, border_radius=8)
-        pygame.draw.rect(screen, self.GRAY_MEDIUM, button_rect, 2, border_radius=8)
+        pygame.draw.rect(screen, (200, 200, 200), button_rect, 2, border_radius=8)
         
         if self.settings_icon:
             icon_rect = self.settings_icon.get_rect(center=button_rect.center)
             screen.blit(self.settings_icon, icon_rect)
     
-    def draw_settings_modal(self, screen, game_state):
-        current_modal = self.get_current_modal(game_state)
-        modal_rect = current_modal["rect"]
+    def draw_settings_modal(self, screen):
+        modal_rect = self.settings_modal["rect"]
         mouse_pos = pygame.mouse.get_pos()
         
         modal_surface = pygame.Surface((modal_rect.width, modal_rect.height), pygame.SRCALPHA)
@@ -279,18 +230,12 @@ class SettingsModal:
         
         pygame.draw.rect(screen, self.MODAL_BORDER, modal_rect, 3, border_radius=12)
         
-        # Título diferente según el estado
-        if game_state == "MENU":
-            title_text = self.title_font.render("VOLUMEN", True, self.TEXT_COLOR)
-        else:
-            title_text = self.title_font.render("AJUSTES", True, self.TEXT_COLOR)
-        
+        title_text = self.title_font.render("AJUSTES", True, self.TEXT_COLOR)
         screen.blit(title_text, (modal_rect.centerx - title_text.get_width() // 2, modal_rect.y + 30))
         
-        for button in current_modal["buttons"]:
+        for button in self.settings_modal["buttons"]:
             self.draw_modal_button(screen, button, mouse_pos)
         
-        # Dibujar X de cerrar
         close_rect = pygame.Rect(modal_rect.right - 40, modal_rect.y + 10, 30, 30)
         self.draw_close_button(screen, close_rect, mouse_pos)
     
@@ -310,11 +255,9 @@ class SettingsModal:
         for slider in self.volume_modal["sliders"]:
             self.draw_volume_slider(screen, slider, mouse_pos)
         
-        # Botón "Volver atrás" - ahora más arriba
         close_btn = self.volume_modal["close_button"]
         self.draw_modal_button(screen, close_btn, mouse_pos)
         
-        # X de cerrar
         close_rect = pygame.Rect(modal_rect.right - 40, modal_rect.y + 10, 30, 30)
         self.draw_close_button(screen, close_rect, mouse_pos)
     
@@ -322,12 +265,12 @@ class SettingsModal:
         rect = button["rect"]
         
         if rect.collidepoint(mouse_pos):
-            color = self.GRAY_LIGHT
+            color = self.BUTTON_HOVER
         else:
-            color = self.GRAY_MEDIUM
+            color = self.BUTTON_NORMAL
         
         pygame.draw.rect(screen, color, rect, border_radius=8)
-        pygame.draw.rect(screen, self.GRAY_MEDIUM, rect, 2, border_radius=8)
+        pygame.draw.rect(screen, self.MODAL_BORDER, rect, 2, border_radius=8)
         
         text = self.button_font.render(button["text"], True, self.TEXT_COLOR)
         text_rect = text.get_rect(center=rect.center)
@@ -335,12 +278,12 @@ class SettingsModal:
     
     def draw_close_button(self, screen, close_rect, mouse_pos):
         if close_rect.collidepoint(mouse_pos):
-            color = self.GRAY_LIGHT  # Gris claro para hover
+            color = (200, 100, 100)
         else:
-            color = self.GRAY_MEDIUM  # Gris medio normal
+            color = (150, 150, 150)
         
         pygame.draw.rect(screen, color, close_rect, border_radius=6)
-        pygame.draw.rect(screen, self.GRAY_MEDIUM, close_rect, 2, border_radius=6)
+        pygame.draw.rect(screen, (100, 100, 100), close_rect, 2, border_radius=6)
         
         x_font = pygame.font.SysFont("arial", 20, bold=True)
         x_text = x_font.render("X", True, self.TEXT_COLOR)
@@ -356,16 +299,12 @@ class SettingsModal:
         fill_rect = pygame.Rect(rect.x, rect.y, fill_width, rect.height)
         pygame.draw.rect(screen, self.SLIDER_FILL, fill_rect, border_radius=3)
         
-        pygame.draw.rect(screen, self.GRAY_MEDIUM, rect, 2, border_radius=3)
+        pygame.draw.rect(screen, self.MODAL_BORDER, rect, 2, border_radius=3)
         
         handle_x = rect.x + fill_width
         handle_rect = pygame.Rect(handle_x - 6, rect.y - 5, 12, rect.height + 10)
         pygame.draw.rect(screen, self.SLIDER_HANDLE, handle_rect, border_radius=6)
-        pygame.draw.rect(screen, self.GRAY_MEDIUM, handle_rect, 1, border_radius=6)
+        pygame.draw.rect(screen, (100, 100, 100), handle_rect, 1, border_radius=6)
         
         label_text = self.slider_font.render(f"{slider['label']}: {int(slider['value'] * 100)}%", True, self.TEXT_COLOR)
         screen.blit(label_text, (rect.x, rect.y - 30))
-    
-    def set_game_state(self, game_state):
-        """Método para establecer el estado actual del juego"""
-        self._last_game_state = game_state
