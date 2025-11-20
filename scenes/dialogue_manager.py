@@ -122,19 +122,22 @@ class DialogueManager:
         """Dibuja el efecto screamer y redirige al menú cuando termina"""
         current_time = time.time()
         elapsed = current_time - self.effect_start_time
-        
+
         if elapsed < self.screamer_duration:
             # Mostrar screamer
             if hasattr(self, 'screamer_image') and self.screamer_image:
                 self.screen.blit(self.screamer_image, (0, 0))
-            
+
             # Efecto de sacudida
             shake_intensity = max(0, 20 - (elapsed * 10))
             if shake_intensity > 0:
                 shake_x = random.randint(-int(shake_intensity), int(shake_intensity))
                 shake_y = random.randint(-int(shake_intensity//2), int(shake_intensity//2))
-                
+
+                # Dibujar contenido "sacudido" usando un surface temporal
                 shaken_content = pygame.Surface((self.WIDTH, self.HEIGHT))
+                # Rellenar con negro para evitar áreas vacías si el desplazamiento deja espacio
+                shaken_content.fill((0, 0, 0))
                 shaken_content.blit(self.screen, (shake_x, shake_y))
                 self.screen.blit(shaken_content, (0, 0))
         else:
@@ -142,16 +145,23 @@ class DialogueManager:
             self.effect_active = False
             self.effect_completed = True
             print("SCREAMER TERMINADO - FORZANDO MENÚ")
-            
+
             # Forzar la transición al menú directamente
             if hasattr(self, 'game'):
-                self.game.current_state = "MENU"
-                self.game.in_survival_scene = False
-                if hasattr(self.game, 'audio_manager'):
-                    self.game.audio_manager.stop_all_sounds()
-                    self.game.audio_manager.play_menu_music()
-                self.is_dialogue_active = False
-                print("ESTADO ACTUALIZADO A MENU")
+                try:
+                    self.game.current_state = "MENU"
+                    self.game.in_survival_scene = False
+                    # Asegurarse de que el diálogo y el audio se detengan correctamente
+                    self.is_dialogue_active = False
+                    if hasattr(self.game, 'audio_manager'):
+                        self.game.audio_manager.stop_all_sounds()
+                        # Intentar reproducir música de menú si existe el método
+                        if hasattr(self.game.audio_manager, 'play_menu_music'):
+                            self.game.audio_manager.play_menu_music()
+                except Exception:
+                    # No queremos que un fallo aquí rompa el juego; loguear para debug
+                    print("Error al forzar la transición al menú después del screamer")
+            print("ESTADO ACTUALIZADO A MENU")
     
     def _aplicar_final_automatico(self):
         """Aplica el final automático basado en la afinidad con el Linyera"""
