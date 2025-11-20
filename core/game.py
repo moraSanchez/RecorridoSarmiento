@@ -36,7 +36,7 @@ class Game:
         
         self.settings_modal = SettingsModal(
             self.screen, self.WIDTH, self.HEIGHT, 
-            self.audio_manager, self.db_manager
+            self.audio_manager, self.db_manager, self  # Pasar referencia al game
         )
         
         self.menu_scene = MenuScene(self)
@@ -57,6 +57,19 @@ class Game:
         
         from scenes.dialogues import SCENES
         self.scenes_order = ["first_scene", "second_scene", "third_scene", "fourth_scene", "fifth_scene"]
+    
+    def get_current_scene_name(self):
+        """Obtiene el nombre de la escena actual"""
+        if hasattr(self, 'scenes_order') and hasattr(self, 'current_scene_index'):
+            if self.current_scene_index < len(self.scenes_order):
+                return self.scenes_order[self.current_scene_index]
+        return "first_scene"
+
+    def get_current_dialogue_index(self):
+        """Obtiene el índice del diálogo actual"""
+        if hasattr(self, 'dialogue_manager'):
+            return self.dialogue_manager.current_line_index
+        return 0
     
     def handle_events(self):
         for event in pygame.event.get():

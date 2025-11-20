@@ -51,7 +51,6 @@ class LoadGameScene:
             self.scroll_offset = 0
     
     def handle_events(self, event):
-        # ELIMINADA la llamada al modal viejo - solo manejar eventos de carga
         if event.type == pygame.KEYDOWN:
             if self.load_game_state == "SELECT_PLAYER":
                 if event.key == pygame.K_UP:
@@ -100,15 +99,46 @@ class LoadGameScene:
             return
             
         selected_player = self.available_players[self.selected_index]
-        player_id, player_name, fecha_registro, ultima_partida = selected_player
-                
+        player_id, player_name, fecha_registro, ultima_partida, escena_actual, indice_dialogo = selected_player
+            
         self.game.player_id = player_id
         self.game.player_name = player_name
+    
+        # Cargar progreso guardado
+        progreso = self.game.db_manager.cargar_progreso(player_id)
         
         # DETENER música del menú al cargar partida
         self.game.audio_manager.stop_menu_music()
         
-        self.game.dialogue_manager.load_scene(SCENES["first_scene"], player_name)
+        if progreso and progreso["escena_actual"]:
+            # Cargar desde el punto guardado
+            escena_guardada = progreso["escena_actual"]
+            indice_guardado = progreso["indice_dialogo"]
+            
+            if escena_guardada in SCENES:
+                self.game.dialogue_manager.load_scene(SCENES[escena_guardada], player_name)
+                # Avanzar hasta el diálogo guardado
+                for i in range(indice_guardado):
+                    self.game.dialogue_manager.advance_dialogue()
+                print(f"Partida cargada desde: {escena_guardada}, diálogo {indice_guardado}")
+                
+                # Actualizar el índice de escena actual
+                if hasattr(self.game, 'scenes_order'):
+                    for i, scene_name in enumerate(self.game.scenes_order):
+                        if scene_name == escena_guardada:
+                            self.game.current_scene_index = i
+                            break
+            else:
+                # Si la escena guardada no existe, empezar desde el principio
+                self.game.dialogue_manager.load_scene(SCENES["first_scene"], player_name)
+                self.game.current_scene_index = 0
+                print("Escena guardada no encontrada, comenzando desde el inicio")
+        else:
+            # No hay progreso guardado, empezar nueva partida
+            self.game.dialogue_manager.load_scene(SCENES["first_scene"], player_name)
+            self.game.current_scene_index = 0
+            print("Nueva partida iniciada")
+        
         self.game.current_state = "PLAYING"
     
     def delete_selected_game(self):
@@ -116,7 +146,7 @@ class LoadGameScene:
             return
             
         selected_player = self.available_players[self.selected_index]
-        player_id, player_name, fecha_registro, ultima_partida = selected_player
+        player_id, player_name, fecha_registro, ultima_partida, escena_actual, indice_dialogo = selected_player
         
         if db_manager.eliminar_jugador(player_id):
             self.check_saved_games()
