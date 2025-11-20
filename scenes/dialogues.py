@@ -346,27 +346,35 @@ POST_SURVIVAL_SCENE = {
     "id": "post_survival",
     "background_sound": {
         "file": "train-sound.mp3", 
-        "volume": 0.8,  # MUY bajo post-supervivencia
+        "volume": 0.8,  
         "loop": True
     },
     "lines": [
         {
             "character": "",
-            "background": "black.jpg",
+            "background": "background-train-dark.jpg",
             "text": "!",
             "effect": "blink_black",
-            "sound": "breathing.mp3",
-            "audio_effect": "fade_in_train",  # NUEVO: tren vuelve gradualmente
-            "audio_params": {"target_volume": 0.08, "duration": 5.0}
+            "audio_effect": "start_breathing_and_fade_train",
+            "audio_params": {"breathing_volume": 0.4, "train_volume": 0.08, "duration": 5.0}
+        },
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",
+            "text": "Los ojos... no los pude cerrar a tiempo, me paralicé.",
+            "effect": "blink_black"
         },
         {
             "character": "[PLAYER_NAME]", 
-            "background": "background-train-dark.jpg",
+            "background": "background-train.jpg",
             "effect": "blink_black",
-            "text": "Mi corazón... no puedo respirar... ¿Qué fue eso?",
-            "sound": "breathing.mp3",
-            "audio_effect": "ducking",
-            "audio_params": {"target": 0.1, "duration": 600, "release": 800}
+            "text": "Apenas puedo respirar... ¿Qué fue eso?"
+        },
+        {
+            "character": "[PLAYER_NAME]", 
+            "background": "background-train.jpg",
+            "text": "...",
+            "audio_effect": "stop_breathing" 
         }
     ]
 }

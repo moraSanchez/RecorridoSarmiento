@@ -153,10 +153,8 @@ class SurvivalScene:
             self.game.audio_manager.stop_all_sounds()
             self.game.audio_manager.play_sound("horror")
         
-        print("Supervivencia iniciada - Sistema de miedo mejorado activado")
-    
+
     def handle_events(self, event):
-        """Maneja los eventos de la escena de supervivencia"""
         if not self.survival_active:
             return False
             
@@ -174,8 +172,10 @@ class SurvivalScene:
                 print("Ojos CERRADOS - Breathing activado")
                 return True
             
-            # CUALQUIER OTRA TECLA activa el screamer inmediatamente
-            elif not self.ghost_visible and not self.first_scare_triggered:
+            # CUALQUIER OTRA TECLA (excepto ESC) activa el screamer inmediatamente
+            elif (event.key != pygame.K_ESCAPE and 
+                not self.ghost_visible and 
+                not self.first_scare_triggered):
                 print(f"Tecla {event.key} presionada - Activando fantasma inmediatamente")
                 self.trigger_ghost_appearance()
                 return True

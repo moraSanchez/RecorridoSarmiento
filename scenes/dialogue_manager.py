@@ -370,6 +370,38 @@ class DialogueManager:
                 am.current_train_sound = train_sound
                 am.fade_train_volume(target_vol, duration)
 
+        elif audio_effect == "start_breathing_and_fade_train":
+            breathing_vol = audio_params.get("breathing_volume", 0.4)
+            train_vol = audio_params.get("train_volume", 0.08)
+            duration = audio_params.get("duration", 5.0)
+            
+            # Reiniciar breathing en loop
+            if "breathing" in am.sounds:
+                if am.sounds["breathing"].get_num_channels() == 0:
+                    am.play_sound("breathing", loop=True)
+                am.sounds["breathing"].set_volume(breathing_vol)
+        
+            # Fade in del tren - ESTA LÍNEA DEBE ESTAR DENTRO DEL ELIF
+            am.fade_train_volume(train_vol, duration)
+            print("Breathing started and train fading in")
+
+        elif audio_effect == "stop_breathing":
+            # Detener breathing nada más
+            if "breathing" in am.sounds:
+                am.stop_sound("breathing", fade_out=2.0)  # Fade out suave
+                print("Breathing stopped - silencio")
+
+        elif audio_effect == "restore_whispers":
+            # Restaurar whispers gradualmente
+            volume = audio_params.get("volume", 0.15)
+            fade_in = audio_params.get("fade_in", 3.0)
+            
+            if "whispers" in am.sounds:
+                if am.sounds["whispers"].get_num_channels() == 0:
+                    am.play_sound("whispers", loop=True, fade_in=fade_in)
+                am.sounds["whispers"].set_volume(volume)
+            print("Whispers restored")
+
     def _play_single_sound(self, sound_file):
         """Reproduce un solo sonido de manera controlada"""
         am = self.game.audio_manager
