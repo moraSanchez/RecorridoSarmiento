@@ -506,6 +506,8 @@ class DialogueManager:
                 "clicked": False
             })
     
+# En scenes/dialogue_manager.py, actualiza el método handle_choice_events:
+
     def handle_choice_events(self, event):
         if not self.showing_choice:
             return False
@@ -524,6 +526,12 @@ class DialogueManager:
         if event.type == pygame.MOUSEBUTTONUP:
             for button in self.choice_buttons:
                 if button["clicked"] and button["rect"].collidepoint(mouse_pos):
+                    # PROCESAR PUNTOS DE AFINIDAD
+                    trust_points = button.get("trust_points", 0)
+                    if trust_points != 0 and hasattr(self, 'game') and self.game.player_id:
+                        self.game.db_manager.actualizar_afinidad(self.game.player_id, trust_points)
+                        print(f"Puntos de afinidad actualizados: {trust_points}")
+                    
                     if self.player_name:
                         for line in button["next_lines"]:
                             if "text" in line:

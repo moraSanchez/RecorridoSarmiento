@@ -42,6 +42,17 @@ class Database:
                 )
             ''')
             
+            # Tabla de afinidad con el Linyera
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS afinidad_linyera (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    jugador_id INTEGER UNIQUE NOT NULL,
+                    puntos_afinidad INTEGER DEFAULT 0,
+                    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (jugador_id) REFERENCES jugadores (id)
+                )
+            ''')
+            
             conn.commit()
             conn.close()
             print("Tablas verificadas/creadas correctamente")
@@ -231,5 +242,73 @@ class Database:
         except Exception as e:
             print(f"Error al eliminar jugador: {e}")
             return False
+
+    def guardar_afinidad(self, jugador_id, puntos_afinidad):
+        """Guarda o actualiza los puntos de afinidad del jugador con el Linyera"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Verificar si ya existe afinidad para este jugador
+            cursor.execute('''
+                SELECT id FROM afinidad_linyera 
+                WHERE jugador_id = ?
+            ''', (jugador_id,))
+            
+            afinidad_existente = cursor.fetchone()
+            
+            if afinidad_existente:
+                # Actualizar afinidad existente
+                cursor.execute('''
+                    UPDATE afinidad_linyera 
+                    SET puntos_afinidad = ?,
+                        fecha_actualizacion = CURRENT_TIMESTAMP
+                    WHERE jugador_id = ?
+                ''', (puntos_afinidad, jugador_id))
+            else:
+                # Crear nueva entrada de afinidad
+                cursor.execute('''
+                    INSERT INTO afinidad_linyera 
+                    (jugador_id, puntos_afinidad)
+                    VALUES (?, ?)
+                ''', (jugador_id, puntos_afinidad))
+            
+            conn.commit()
+            conn.close()
+            print(f"Afinidad guardada: {puntos_afinidad} puntos para jugador {jugador_id}")
+            return True
+            
+        except Exception as e:
+            print(f"Error al guardar afinidad: {e}")
+            return False
+
+    def obtener_afinidad(self, jugador_id):
+        """Obtiene los puntos de afinidad del jugador"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT puntos_afinidad FROM afinidad_linyera 
+                WHERE jugador_id = ?
+            ''', (jugador_id,))
+            
+            resultado = cursor.fetchone()
+            conn.close()
+            
+            if resultado:
+                return resultado[0]
+            else:
+                return 0  # Valor por defecto si no existe
+                
+        except Exception as e:
+            print(f"Error al obtener afinidad: {e}")
+            return 0
+
+    def actualizar_afinidad(self, jugador_id, cambio_puntos):
+        """Actualiza los puntos de afinidad (puede ser positivo o negativo)"""
+        afinidad_actual = self.obtener_afinidad(jugador_id)
+        nueva_afinidad = afinidad_actual + cambio_puntos
+        return self.guardar_afinidad(jugador_id, nueva_afinidad)
 
 db_manager = Database()

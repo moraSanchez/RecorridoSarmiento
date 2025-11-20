@@ -5,22 +5,22 @@ FIRST_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "anden.jpg",
-            "text": "Las 23:47. La puta madre. El último tren tenía que haber salido a las 23:45. ¿Por qué siempre me pasa esto?"
+            "text": "Las 23:47. La puta madre. El ultimo tren tenia que haber salido a las 23:45. ¿Por que siempre me pasa esto?"
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "anden.jpg", 
-            "text": "Espera... ese ruido. ¿Un tren? Pero si acaban de anunciar que no hay más servicios hasta mañana…"
+            "text": "Espera... ese ruido. ¿Un tren? Pero si acaban de anunciar que no hay mas servicios hasta manana…"
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "anden.jpg", 
-            "text": "La aplicación de trenes no dice nada. Bah, si siempre anda para el orto."
+            "text": "La aplicacion de trenes no dice nada. Bah, si siempre anda para el orto."
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "anden-tren.jpg",
-            "text": "Qué raro. Este no es como los otros. ¿Será un servicio especial? Bueno, mejor esto que quedarme en once."
+            "text": "Que raro. Este no es como los otros. ¿Sera un servicio especial? Bueno, mejor esto que quedarme en once."
         }
     ]
 }
@@ -42,7 +42,7 @@ SECOND_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": None,
-            "text": "Bueno, me siento en el fondo y listo, no me voy a quejar tanto, al menos espero que vaya rápido."
+            "text": "Bueno, me siento en el fondo y listo, no me voy a quejar tanto, al menos espero que vaya rapido."
         }
     ]
 }
@@ -58,7 +58,7 @@ THIRD_SCENE = {
         {
             "character": "",
             "background": "background-train.jpg",
-            "text": "Al avanzar por el pasillo, en el último asiento del vagón hay una figura encorvada, ropa harapienta, un abrigo gastado y una barba larga, sucia. Todo en él parece sucio."
+            "text": "Al avanzar por el pasillo, en el ultimo asiento del vagon hay una figura encorvada, ropa harapienta, un abrigo gastado y una barba larga, sucia. Todo en el parece sucio."
         },
         {
             "character": "[PLAYER_NAME]",
@@ -73,17 +73,17 @@ THIRD_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "(Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagón.)"
+            "text": "(Si me siento lejos y finjo demencia, no creo que me moleste. Aunque… es el unico ademas de mi en el vagon.)"
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "(No quiero prejuzgar, pero tampoco quiero que me roben o algo, ¿debería ser educado y saludar o simplemente ignorarlo?)"
+            "text": "(No quiero prejuzgar, pero tampoco quiero que me roben o algo, ¿deberia ser educado y saludar o simplemente ignorarlo?)"
         }
         
     ],
     "choice": {
-        "question": "¿Qué debería hacer?",
+        "question": "¿Que deberia hacer?",
         "options": [
             {
                 "text": "Buenas noches.",
@@ -131,7 +131,7 @@ THIRD_SCENE = {
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "(El tren lleva avanzando hace rato pero todavía no freno en ninguna estación, que raro. Capaz no estoy prestando atención. Bueno, teniendo a ese linyera cerca, es difícil la verdad…)"
+                        "text": "(El tren lleva avanzando hace rato pero todavia no freno en ninguna estacion, que raro. Capaz no estoy prestando atencion. Bueno, teniendo a ese linyera cerca, es dificil la verdad…)"
                     }
                 ]
             },
@@ -151,17 +151,17 @@ THIRD_SCENE = {
                     {
                         "character": "???",
                         "background": "linyera.jpg",
-                        "text": "Los que no saludan son los que más rápido se pierden..."
+                        "text": "Los que no saludan son los que mas rapido se pierden..."
                     },
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "(¿Me está amenazando? ¿Debería decirle algo? Mejor no, al final arrugue.)"
+                        "text": "(¿Me esta amenazando? ¿Deberia decirle algo? Mejor no, al final arrugue.)"
                     },
                     {
                         "character": "[PLAYER_NAME]",
                         "background": "background-train.jpg",
-                        "text": "(El tren lleva avanzando hace rato pero todavía no freno en ninguna estación, que raro. Capaz no estoy prestando atención. Bueno, teniendo a ese linyera cerca, es difícil la verdad…)"
+                        "text": "(El tren lleva avanzando hace rato pero todavia no freno en ninguna estacion, que raro. Capaz no estoy prestando atencion. Bueno, teniendo a ese linyera cerca, es dificil la verdad…)"
                     }
                 ]
             }
@@ -180,7 +180,7 @@ FOURTH_SCENE = {
         {
             "character": "Linyera",
             "background": "linyera.jpg",
-            "text": "¿Como terminaste acá?"
+            "text": "¿Como terminaste aca?"
         },
         {
             "character": "Linyera",
@@ -190,12 +190,12 @@ FOURTH_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "¿Cómo que no es mi tren? Es el Sarmiento, voy hasta Merlo. Pensé que habia perdido el ultimo tren y..."
+            "text": "¿Como que no es mi tren? Es el Sarmiento, voy hasta Merlo. Pense que habia perdido el ultimo tren y..."
         },
         {
             "character": "Linyera", 
             "background": "linyera.jpg",
-            "text": "Merlo... ja. Este tren no para en Merlo hace años. Al menos no el Merlo que conocecias."
+            "text": "Merlo... ja. Este tren no para en Merlo hace anos. Al menos no el Merlo que conocecias."
         },
         {
             "character": "Linyera", 
@@ -205,7 +205,7 @@ FOURTH_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "text": "¿Está borracho? Claramente estamos parando en estaciones, esta pirado."
+            "text": "¿Esta borracho? Claramente estamos parando en estaciones, esta pirado."
         },
         {
             "character": "Linyera",
@@ -220,7 +220,7 @@ FOURTH_SCENE = {
         {
             "character": "Linyera",
             "background": "linyera.jpg", 
-            "text": "Ahí tenés una. Mirá bien quién baja... y quién sube."
+            "text": "Ahi tenes una. Mira bien quien baja... y quien sube."
         },
         {
             "character": "[PLAYER_NAME]",
@@ -230,14 +230,14 @@ FOURTH_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background.train.jpg",
-            "text": "Ahora que lo pienso... el tren no hizo el anuncio de próxima estación. Y esa estación de afuera... no tiene cartel con el nombre."
+            "text": "Ahora que lo pienso... el tren no hizo el anuncio de proxima estacion. Y esa estacion de afuera... no tiene cartel con el nombre."
         }
     ]
 }
 
 FIFTH_SCENE = {
     "id": "fifth_scene",
-    # SIN background_sound - el tren debe estar silenciado aquí
+    # SIN background_sound - el tren debe estar silenciado aqui
     "lines": [
         {
             "character": "[PLAYER_NAME]",
@@ -250,7 +250,7 @@ FIFTH_SCENE = {
             "character": "[PLAYER_NAME]", 
             "background": "background-train.jpg",
             "sound": "train-stopping.mp3",
-            "text": "El tren frenó de golpe. ¿Será... Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces están todas apagadas. Que raro."
+            "text": "El tren freno de golpe. ¿Sera... Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces estan todas apagadas. Que raro."
         },
         {
             "character": "",
@@ -341,7 +341,7 @@ FIFTH_SCENE = {
     ]
 }
 
-# Escena después de la supervivencia
+# Escena despues de la supervivencia
 POST_SURVIVAL_SCENE = {
     "id": "post_survival",
     "background_sound": {
@@ -361,22 +361,468 @@ POST_SURVIVAL_SCENE = {
         {
             "character": "",
             "background": "background-train-dark.jpg",
-            "text": "Los ojos... no los pude cerrar a tiempo, me paralicé.",
+            "text": "Los ojos... no los pude cerrar a tiempo, me paralice.",
             "effect": "blink_black"
         },
         {
             "character": "[PLAYER_NAME]", 
             "background": "background-train.jpg",
             "effect": "blink_black",
-            "text": "Apenas puedo respirar... ¿Qué fue eso?"
+            "text": "Apenas puedo respirar... ¿Que fue eso?",
+            "audio_effect": "stop_breathing"
         },
         {
             "character": "[PLAYER_NAME]", 
             "background": "background-train.jpg",
-            "text": "...",
-            "audio_effect": "stop_breathing" 
+            "text": "..."
         }
     ]
+}
+
+# Escena 6 - Despues de POST_SURVIVAL_SCENE
+SIXTH_SCENE = {
+    "id": "sixth_scene",
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.6,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train.jpg",
+            "text": "¿Que... que era esa cosa?"
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg", 
+            "text": "Ecos del pasado. Almas que no supieron cuando bajar."
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Todavia estas a tiempo. La proxima no dudes."
+        }
+    ],
+    "choice": {
+        "question": "¿Que respondes?",
+        "options": [
+            {
+                "text": "Necesito que me expliques mas, por favor.",
+                "trust_points": 2,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "Necesito que me expliques mas, por favor."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Mira... este tren lleva anos recogiendo almas perdidas. Los que no encontraron su camino en vida."
+                    }
+                ]
+            },
+            {
+                "text": "Esto es una locura, no te creo.",
+                "trust_points": -2,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]", 
+                        "background": "background-train.jpg",
+                        "text": "Esto es una locura, no te creo."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Creeme o no, es tu problema. Pero cuando te toque enfrentarlos solo, acordate de este momento."
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+SEVENTH_SCENE = {
+    "id": "seventh_scene",
+    "background_sound": {
+        "file": "train-sound.mp3", 
+        "volume": 0.7,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",
+            "sound": "train-stopping.mp3",
+            "text": "El tren se detiene en una estacion oscura. Los carteles estan borrosos, ilegibles."
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Mira bien. ¿Reconoces algo ahi afuera?"
+        }
+    ],
+    "choice": {
+        "question": "¿Que haces?",
+        "options": [
+            {
+                "text": "No, esta no es mi estacion. Esperemos.",
+                "trust_points": 2,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg", 
+                        "text": "No, esta no es mi estacion. Esperemos."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Bien pensado. Esta estacion huele a despedidas tristes."
+                    }
+                ]
+            },
+            {
+                "text": "Cualquier lugar es mejor que este tren.",
+                "trust_points": -3,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "Cualquier lugar es mejor que este tren."
+                    },
+                    {
+                        "character": "Linyera", 
+                        "background": "linyera.jpg",
+                        "text": "La desesperacion nubla el juicio. Aca abajo solo te espera el olvido."
+                    }
+                ]
+            },
+            {
+                "text": "¿Vos que opinas?",
+                "trust_points": 1,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "¿Vos que opinas?"
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg", 
+                        "text": "Yo digo que esperemos. Las prisas son malas consejeras."
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+# Agregar después de EIGHTH_SCENE en scenes/dialogues.py
+
+SEVENTH_SCENE = {
+    "id": "seventh_scene",  # CORREGIDO: era "eighth_scene"
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.5,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "",
+            "background": "background-train.jpg",
+            "sound": "door-sound.mp3",  # CAMBIADO: lights-flickering.mp3 no existe
+            "effect": "blink_black",    # CAMBIADO: flicker_lights no existe
+            "text": "..."
+        },
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",
+            "sound": "door-sound.mp3",  # CAMBIADO: lights-flickering.mp3 no existe
+            "effect": "blink_black",    # CAMBIADO: flicker_lights no existe
+            "text": "¿O-otra vez?"
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Esta volviendo. ¡Cerralos ojos cuando sientas que esta cerca!"
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train-dark.jpg",
+            "text": "(Siento algo frio en el hombro... no veo nada pero esta ahi.)"
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train-dark.jpg", 
+            "text": "(¿Algo me toca? Pero no hay nadie. ¿Estoy imaginando cosas? El frio se extiende por mi brazo.)"
+        }
+    ],
+    "choice": {
+        "question": "¿Que haces?",
+        "options": [
+            {
+                "text": "Cerrar los ojos",
+                "trust_points": 2,
+                "next_lines": [
+                    {
+                        "character": "",
+                        "background": "background-train-dark.jpg",  # CAMBIADO: black_screen.jpg no existe
+                        "sound": "breathing.mp3",  # CAMBIADO: heartbeat.mp3 no existe
+                        "effect": "blink_black",   # CAMBIADO: fade_to_black no existe
+                        "text": "Cierra los ojos. Solo se escucha la respiracion agitada."
+                    },
+                    {
+                        "character": "",
+                        "background": "background-train-dark.jpg",  # CAMBIADO: black_screen.jpg no existe
+                        "text": "Despues de unos segundos, la sensacion de frio desaparece."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Lo lograste. Esta vez era mas sutil, pero no cediste al panico."
+                    }
+                ]
+            },
+            {
+                "text": "Debo estar alucinando",
+                "trust_points": -5,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train-dark.jpg",
+                        "text": "Debo estar alucinando... esto no puede estar pasando."
+                    },
+                    {
+                        "character": "",
+                        "background": "ghost.jpg",  # CAMBIADO: screamer.jpg no existe
+                        "sound": "scream.mp3",      # CAMBIADO: screamer-sound.mp3 no existe
+                        "effect": "blink_black",    # CAMBIADO: screamer no existe
+                        "text": "GAME OVER - La negacion te cego hasta la realidad. Ahora formas parte del recorrido eterno."
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+EIGHTH_SCENE = {
+    "id": "eighth_scene",  # CORREGIDO: era "tenth_scene"
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.5,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",  # CAMBIADO: station-strange.jpg no existe
+            "sound": "train-stopping.mp3",
+            "text": "El tren comienza a frenar. Por la ventana se ve una estacion diferente, mas iluminada, pero extrañamente silenciosa."
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Esta es diferente. Mira con atencion."
+        },
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",  # CAMBIADO: station-strange.jpg no existe
+            "text": "Hay algo familiar en esta estacion... como si la hubiera visitado en otro momento."
+        }
+    ],
+    "choice": {
+        "question": "¿Esta es tu estacion?",
+        "options": [
+            {
+                "text": "Siento que esta podria ser",
+                "trust_points": 3,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "Siento que esta podria ser... siento una calma extraña."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Tu instinto mejora. Pero esperemos un poco mas."
+                    }
+                ]
+            },
+            {
+                "text": "No me convence para nada",
+                "trust_points": -2,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "No, hay algo que no me gusta. Siento que me espera algo malo ahi."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "El miedo todavia te domina."
+                    }
+                ]
+            },
+            {
+                "text": "¿Que sentis vos?",
+                "trust_points": 2,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",
+                        "text": "No se que pensar. ¿Vos que crees? ¿Esta es mi parada?"
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Creo que tu destino esta cerca, pero esta no es la puerta correcta."
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+NINTH_SCENE = {
+    "id": "ninth_scene",  # CORREGIDO: era "eleventh_scene"
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.3,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "",
+            "background": "background-train-dark.jpg",
+            "sound": "whispers.mp3",  # CAMBIADO: multiple-whispers.mp3 no existe
+            "effect": "blink_black",  # CAMBIADO: intense_flicker no existe
+            "text": "Las luces comienzan a fallar de nuevo, pero esta vez de manera mas intensa. Se escuchan multiples susurros."
+        },
+        {
+            "character": "Linyera",
+            "background": "linyera.jpg",
+            "text": "Es ahora. Recorda todo lo que aprendiste. Yo no te puedo ayudar mas."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train-dark.jpg",
+            "text": "¿Eh...?"
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train-dark.jpg",
+            "text": "Siento multiples presencias a mi alrededor. Manos frias me tocan por todos lados. Es dificil mantener la calma."
+        }
+    ],
+    "choice": {
+        "question": "¿Como reaccionas?",
+        "options": [
+            {
+                "text": "Cerrar los ojos y respirar",
+                "trust_points": 5,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train-dark.jpg",  # CAMBIADO: black_screen.jpg no existe
+                        "sound": "breathing.mp3",  # CAMBIADO: deep-breathing.mp3 no existe
+                        "effect": "blink_black",   # CAMBIADO: fade_to_black no existe
+                        "text": "Tranquilo... respira... no es real, no es real..."
+                    },
+                    {
+                        "character": "",
+                        "background": "background-train-dark.jpg",  # CAMBIADO: black_screen.jpg no existe
+                        "text": "Los susurros se desvanecen gradualmente."
+                    }
+                ]
+            },
+            {
+                "text": "¡Estoy harto de todo esto!",
+                "trust_points": -10,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train-dark.jpg",
+                        "text": "¡YA BASTA! ¡DEJENME EN PAZ!"
+                    },
+                    {
+                        "character": "",
+                        "background": "ghost.jpg",  # CAMBIADO: multiple-screamers.jpg no existe
+                        "sound": "scream.mp3",      # CAMBIADO: multiple-screams.mp3 no existe
+                        "effect": "blink_black",    # CAMBIADO: screamer no existe
+                        "text": "GAME OVER - El enojo te nublo el juicio. Te perdiste en el camino hacia tu hogar."
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+TENTH_SCENE = {  # CORREGIDO: era TENH_SCENE
+    "id": "tenth_scene",  # CORREGIDO: era "twelfth_scene"
+    "background_sound": {
+        "file": "train-sound.mp3",
+        "volume": 0.8,
+        "loop": True
+    },
+    "lines": [
+        {
+            "character": "",
+            "background": "background-train.jpg",  # CAMBIADO: station-final.jpg no existe
+            "sound": "train-stopping.mp3",  # CAMBIADO: train-stopping-gentle.mp3 no existe
+            "text": "El tren se detiene suavemente. La estacion fuera esta perfectamente iluminada."
+        }
+    ],
+    "choice": {
+        "question": "",  # No hay pregunta, el final se decide por los puntos
+        "options": [
+            {
+                "text": "FINAL BUENO",  # Se activa si trust_points >= 8
+                "trust_points": 0,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train.jpg",  # CAMBIADO: station-final-good.jpg no existe
+                        "text": "¿De verdad? ¿Esta es la salida? No se como agradecerte..."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",  # CAMBIADO: linyera-smiling.jpg no existe
+                        "text": "Baja, pibe. Tu viaje termino. Y gracias... por confiar."
+                    },
+                    {
+                        "character": "",
+                        "background": "background-train.jpg",  # CAMBIADO: station-final-good.jpg no existe
+                        "text": "El jugador baja. Al mirar atras, ve al Linyera desvaneciendose en una luz suave."
+                    }
+                ]
+            },
+            {
+                "text": "FINAL MALO",  # Se activa si trust_points < 8
+                "trust_points": 0,
+                "next_lines": [
+                    {
+                        "character": "[PLAYER_NAME]",
+                        "background": "background-train-dark.jpg",  # CAMBIADO: station-final-bad.jpg no existe
+                        "text": "¿Aca? Pero esta estacion se ve... abandonada."
+                    },
+                    {
+                        "character": "Linyera",
+                        "background": "linyera.jpg",
+                        "text": "Baja aca. Es lo que mereces."
+                    },
+                    {
+                        "character": "",
+                        "background": "background-train-dark.jpg",  # CAMBIADO: black_screen.jpg no existe
+                        "sound": "door-sound.mp3",  # CAMBIADO: collapse-sound.mp3 no existe
+                        "text": "La estacion se desmorona al bajar. Oscuridad eterna."
+                    }
+                ]
+            }
+        ]
+    }
 }
 
 SCENES = {
@@ -385,5 +831,10 @@ SCENES = {
     "third_scene": THIRD_SCENE,
     "fourth_scene": FOURTH_SCENE,
     "fifth_scene": FIFTH_SCENE,
-    "post_survival": POST_SURVIVAL_SCENE
+    "post_survival": POST_SURVIVAL_SCENE,
+    "sixth_scene": SIXTH_SCENE,
+    "seventh_scene": SEVENTH_SCENE,
+    "eighth_scene": EIGHTH_SCENE,
+    "ninth_scene": NINTH_SCENE,
+    "tenth_scene": TENTH_SCENE
 }

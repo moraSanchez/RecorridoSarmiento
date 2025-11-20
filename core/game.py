@@ -36,7 +36,7 @@ class Game:
         
         self.settings_modal = SettingsModal(
             self.screen, self.WIDTH, self.HEIGHT, 
-            self.audio_manager, self.db_manager, self  # Pasar referencia al game
+            self.audio_manager, self.db_manager, self
         )
         
         self.menu_scene = MenuScene(self)
@@ -46,7 +46,7 @@ class Game:
         self.survival_scene = SurvivalScene(self)
         self.in_survival_scene = False
         
-        # CONECTAR dialogue_manager con game (IMPORTANTE para que funcione AudioManager)
+        # CONECTAR dialogue_manager con game
         self.dialogue_manager.game = self
         
         # APLICAR VOLÚMENES ANTES de reproducir el menú
@@ -56,7 +56,13 @@ class Game:
         self.audio_manager.play_menu_music()
         
         from scenes.dialogues import SCENES
-        self.scenes_order = ["first_scene", "second_scene", "third_scene", "fourth_scene", "fifth_scene"]
+        # ORDEN DE ESCENAS ACTUALIZADO - ESTO DEBE ESTAR DENTRO DEL __init__
+        self.scenes_order = [
+            "first_scene", "second_scene", "third_scene", 
+            "fourth_scene", "fifth_scene", "post_survival",
+            "sixth_scene", "seventh_scene", "eighth_scene",
+            "ninth_scene", "tenth_scene"
+        ]
     
     def get_current_scene_name(self):
         """Obtiene el nombre de la escena actual"""
@@ -166,12 +172,27 @@ class Game:
         from scenes.dialogues import SCENES
         
         self.current_scene_index += 1
+        print(f"DEBUG: Avanzando a índice de escena: {self.current_scene_index}")
+        print(f"DEBUG: Total de escenas disponibles: {len(self.scenes_order)}")
         
         if self.current_scene_index < len(self.scenes_order):
             next_scene_name = self.scenes_order[self.current_scene_index]
-            next_scene = SCENES[next_scene_name]
-            self.dialogue_manager.load_scene(next_scene, self.player_name)
+            print(f"DEBUG: Intentando cargar escena: {next_scene_name}")
+            
+            # VERIFICAR SI LA ESCENA EXISTE EN SCENES
+            if next_scene_name in SCENES:
+                next_scene = SCENES[next_scene_name]
+                self.dialogue_manager.load_scene(next_scene, self.player_name)
+                print(f"DEBUG: Escena {next_scene_name} cargada exitosamente")
+            else:
+                print(f"ERROR: Escena '{next_scene_name}' no encontrada en SCENES")
+                print(f"DEBUG: Escenas disponibles: {list(SCENES.keys())}")
+                self.current_state = "MENU"
+                self.audio_manager.stop_all_sounds()
+                self.audio_manager.play_menu_music()
         else:
+            # SOLO cuando realmente no hay más escenas
+            print("DEBUG: No hay más escenas, volviendo al menú")
             self.current_state = "MENU"
             self.in_survival_scene = False
             self.audio_manager.stop_all_sounds()
@@ -184,10 +205,12 @@ class Game:
     
     def end_survival_scene(self):
         """Termina la escena de supervivencia y continúa con el diálogo"""
+        print("DEBUG: Finalizando escena de supervivencia")
         self.in_survival_scene = False
         # Detener todos los sonidos de la supervivencia
         self.audio_manager.stop_all_sounds()
         # Avanzar a la siguiente escena después de la supervivencia
+        print(f"DEBUG: Índice actual antes de avanzar: {self.current_scene_index}")
         self.advance_to_next_scene()
     
     def check_saved_games(self):

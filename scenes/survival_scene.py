@@ -257,8 +257,9 @@ class SurvivalScene:
             self.game.audio_manager.stop_all_sounds()
         
         self.game.in_survival_scene = False
-        self.load_post_survival_dialogue()
-    
+        # En lugar de cargar directamente el diálogo, avanzamos a la siguiente escena
+        self.game.advance_to_next_scene()
+        
     def load_post_survival_dialogue(self):
         """Carga el diálogo después de la supervivencia"""
         from scenes.dialogues import POST_SURVIVAL_SCENE

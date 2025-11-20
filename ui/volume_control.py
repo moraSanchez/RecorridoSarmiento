@@ -89,9 +89,7 @@ class VolumeControl:
                 volume_level = max(0.0, min(1.0, volume_level))
                 self.audio_manager.set_volume(volume_level)
                 return True
-        
-        # SE ELIMINÓ EL MANEJO DE LA TECLA "M" PARA MUTE
-        
+                
         return False
     
     def play_background_music(self):
