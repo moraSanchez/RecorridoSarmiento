@@ -656,7 +656,7 @@ NINTH_SCENE = {
             "character": "",
             "background": "background-train.jpg",
             "sound": "train-stopping.mp3",
-            "text": "El tren se detiene suavemente. La estación fuera está perfectamente iluminada."
+            "text": "El tren se detiene."
         },
         {
             "character": "Linyera",

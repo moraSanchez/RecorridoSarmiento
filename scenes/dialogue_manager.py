@@ -23,13 +23,12 @@ class DialogueManager:
         self.name_font = pygame.font.SysFont("arial", 22, bold=True)
         self.choice_font = pygame.font.SysFont("arial", 24)
         self.choice_question_font = pygame.font.SysFont("arial", 26, bold=True)
-        
-        # Efectos visuales nuevos
+       
         self.vignette_surface = pygame.Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA)
         self._build_vignette()
         
-        # Sistema de typewriter
-        self.typewriter_speed = 40  # chars por segundo
+        
+        self.typewriter_speed = 40 
         self._tw_start = 0
         self._tw_text = ""
         self._tw_lines = []
@@ -58,7 +57,7 @@ class DialogueManager:
         self.screamer_image = None
         self.screamer_duration = 3.0
         
-        # Choices
+        # Decisiones
         self.showing_choice = False
         self.choice_data = None
         self.choice_buttons = []
@@ -66,7 +65,6 @@ class DialogueManager:
         self.SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "..", "sounds")
     
     def _build_vignette(self):
-        """Crea el efecto de viñeta radial"""
         center_x, center_y = self.WIDTH // 2, self.HEIGHT // 2
         max_dist = math.hypot(center_x, center_y)
         
@@ -78,7 +76,6 @@ class DialogueManager:
                 self.vignette_surface.set_at((x, y), (0, 0, 0, alpha))
     
     def _return_to_menu(self):
-        """Vuelve al menú principal silenciosamente"""
         print("GAME OVER - Retornando al menú")
         if hasattr(self, 'game'):
             self.game.current_state = "MENU"
@@ -89,20 +86,17 @@ class DialogueManager:
             self.is_dialogue_active = False
     
     def _apply_screamer_effect(self):
-        """Aplica el efecto screamer"""
         self.effect_active = True
         self.effect_type = "screamer"
         self.effect_start_time = time.time()
         self.effect_completed = False
         
-        # Cargar la imagen del screamer
         try:
             screamer_path = os.path.join("img", "screamer.png")
             if os.path.exists(screamer_path):
                 self.screamer_image = pygame.image.load(screamer_path)
                 self.screamer_image = pygame.transform.scale(self.screamer_image, (self.WIDTH, self.HEIGHT))
             else:
-                # Crear screamer de emergencia si no existe la imagen
                 self.screamer_image = pygame.Surface((self.WIDTH, self.HEIGHT))
                 self.screamer_image.fill((0, 0, 0))
                 pygame.draw.ellipse(self.screamer_image, (255, 0, 0), 
@@ -119,7 +113,6 @@ class DialogueManager:
             self.game.audio_manager.play_sound("scream")
 
     def _apply_screamer_effect_draw(self):
-        """Dibuja el efecto screamer y redirige al menú cuando termina"""
         current_time = time.time()
         elapsed = current_time - self.effect_start_time
 
@@ -141,37 +134,33 @@ class DialogueManager:
                 shaken_content.blit(self.screen, (shake_x, shake_y))
                 self.screen.blit(shaken_content, (0, 0))
         else:
-            # Terminar efecto y REDIRIGIR AL MENÚ INMEDIATAMENTE
             self.effect_active = False
             self.effect_completed = True
             print("SCREAMER TERMINADO - FORZANDO MENÚ")
 
-            # Forzar la transición al menú directamente
             if hasattr(self, 'game'):
                 try:
                     self.game.current_state = "MENU"
                     self.game.in_survival_scene = False
-                    # Asegurarse de que el diálogo y el audio se detengan correctamente
                     self.is_dialogue_active = False
                     if hasattr(self.game, 'audio_manager'):
                         self.game.audio_manager.stop_all_sounds()
-                        # Intentar reproducir música de menú si existe el método
+    
                         if hasattr(self.game.audio_manager, 'play_menu_music'):
                             self.game.audio_manager.play_menu_music()
                 except Exception:
-                    # No queremos que un fallo aquí rompa el juego; loguear para debug
+                   
                     print("Error al forzar la transición al menú después del screamer")
             print("ESTADO ACTUALIZADO A MENU")
     
     def _aplicar_final_automatico(self):
-        """Aplica el final automático basado en la afinidad con el Linyera"""
         if not (hasattr(self, 'game') and getattr(self.game, 'player_id', None)):
             return
 
         puntos_afinidad = self.game.db_manager.obtener_afinidad(self.game.player_id)
         
         # DEFINIR FINAL BUENO O MALO SEGÚN AFINIDAD
-        if puntos_afinidad >= 8:  # Umbral para final bueno
+        if puntos_afinidad >= 8:  # 
             final_lines = [
                 {
                     "character": "[PLAYER_NAME]",
@@ -208,16 +197,14 @@ class DialogueManager:
                     "text": "La estación se desmorona al bajar. Oscuridad eterna. Te perdiste para siempre en el recorrido."
                 }
             ]
-        
-        # REEMPLAZAR [PLAYER_NAME] con el nombre real del jugador
+
         if self.player_name:
             for line in final_lines:
                 if "text" in line:
                     line["text"] = line["text"].replace("[PLAYER_NAME]", self.player_name)
                 if line.get("character") == "[PLAYER_NAME]":
                     line["character"] = self.player_name
-        
-        # Crear escena del final automático
+     
         final_scene = {
             "id": "final_automatico",
             "lines": final_lines
@@ -225,8 +212,7 @@ class DialogueManager:
         
         if isinstance(self.current_scene, dict) and "background_sound" in self.current_scene:
             final_scene["background_sound"] = self.current_scene["background_sound"]
-        
-        # Cargar la escena final automáticamente
+       
         self.current_scene = final_scene
         self.current_line_index = 0
         self.showing_choice = False
@@ -249,8 +235,7 @@ class DialogueManager:
         self.next_background = None
         self.ghost_overlay = None
         self.ghost_alpha = 0
-        
-        # Reset typewriter
+   
         self._tw_text = ""
         self._tw_lines = []
         
@@ -262,7 +247,6 @@ class DialogueManager:
         
         if player_name:
             for line in self.current_scene["lines"]:
-                # Solo reemplazar si la línea tiene texto
                 if "text" in line:
                     line["text"] = line["text"].replace("[PLAYER_NAME]", player_name)
                 if line["character"] == "[PLAYER_NAME]":
@@ -317,13 +301,11 @@ class DialogueManager:
         d = self.effect_duration
 
         def ease_in_out(t):
-            # S-curve para transición suave
             return t * t * (3 - 2 * t)
 
         if elapsed < d:
             t = elapsed / d
             if t < 0.45:
-                # fade in a negro
                 if self.current_background:
                     self.screen.blit(self.current_background, (0, 0))
                 alpha = int(ease_in_out(t / 0.45) * 255)
@@ -334,7 +316,6 @@ class DialogueManager:
             elif t < 0.6:
                 self.screen.fill(self.BLACK)
             else:
-                # fade out desde negro al próximo fondo
                 if self.next_background:
                     self.screen.blit(self.next_background, (0, 0))
                 t2 = (t - 0.6) / 0.4
@@ -356,7 +337,6 @@ class DialogueManager:
             
         background_sound_data = self.current_scene.get("background_sound")
         
-        # Si la escena NO tiene background_sound, detener el tren si está sonando
         if not background_sound_data and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
             if self.game.audio_manager.current_train_sound:
                 self.game.audio_manager.stop_sound("train_sound", fade_out=1.0)
@@ -368,22 +348,17 @@ class DialogueManager:
                 
                 if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
                     if sound_file == "train-sound.mp3":
-                        # SOLO iniciar el tren si no está ya reproduciéndose
                         current_volume = background_sound_data.get("volume", 0.8)
-                        
                         if not self.game.audio_manager.current_train_sound:
-                            # Tren no está sonando - iniciarlo
                             train_sound = self.game.audio_manager.play_sound("train_sound", loop=True)
                             self.game.audio_manager.set_train_volume(current_volume)
                             self.game.audio_manager.current_train_sound = train_sound
                         else:
-                            # Tren ya está sonando - solo ajustar volumen si es necesario
                             existing_volume = self.game.audio_manager.sounds["train_sound"].get_volume()
                             if abs(existing_volume - current_volume) > 0.05:
                                 self.game.audio_manager.set_train_volume(current_volume)
                         
                     else:
-                        # Para otros sonidos de fondo (no tren)
                         sound_path = os.path.join(self.SOUNDS_DIR, sound_file)
                         if os.path.exists(sound_path):
                             pygame.mixer.music.stop()
@@ -447,8 +422,6 @@ class DialogueManager:
                 self.current_background = None
         else:
             self.current_background = None
-        
-        # Cargar overlay del fantasma (si existe)
         ghost_file = current_line.get("ghost_overlay", "")
         self.ghost_alpha = current_line.get("ghost_alpha", 0)
         
@@ -487,11 +460,11 @@ class DialogueManager:
         audio_effect = current_line.get("audio_effect", "")
         audio_params = current_line.get("audio_params", {})
         
-        # 1. PRIMERO aplicar efectos de audio
+        # aplicar efectos de audio
         if audio_effect and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
             self._apply_audio_effects(audio_effect, audio_params)
         
-        # 2. LUEGO reproducir el sonido específico (SOLO UNA VEZ)
+        # reproducir el sonido específico (SOLO UNA VEZ)
         if sound_file and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
             self._play_single_sound(sound_file)
 
@@ -515,24 +488,20 @@ class DialogueManager:
             am.start_ducking(target, duration, release)
             
         elif audio_effect == "stop_all_except_horror":
-            # Parar todo excepto horror Y tetrico
             for sound_name in ["train_sound", "whispers", "door", "train_stopping", "breathing"]:
                 if sound_name in am.sounds:
                     am.stop_sound(sound_name, fade_out=1.0)
             print("Stopped all sounds except horror and tetrico")
 
         elif audio_effect == "prepare_survival":
-            # Silencio total antes de la supervivencia, PERO mantener tetrico
             for sound_name in ["train_sound", "whispers", "door", "train_stopping", "horror", "breathing"]:
                 if sound_name in am.sounds:
                     am.stop_sound(sound_name, fade_out=1.0)
-            # "tetrico" NO se detiene - sigue de fondo
             print("Preparation for survival - complete silence except tetrico")
             
         elif audio_effect == "fade_in_train":
             target_vol = audio_params.get("target_volume", 0.08)
             duration = audio_params.get("duration", 5.0)
-            # Reiniciar tren si está detenido
             if "train_sound" in am.sounds:
                 train_sound = am.play_sound("train_sound", loop=True, fade_in=1.0)
                 am.current_train_sound = train_sound
@@ -543,24 +512,23 @@ class DialogueManager:
             train_vol = audio_params.get("train_volume", 0.08)
             duration = audio_params.get("duration", 5.0)
             
-            # Reiniciar breathing en loop
             if "breathing" in am.sounds:
                 if am.sounds["breathing"].get_num_channels() == 0:
                     am.play_sound("breathing", loop=True)
                 am.sounds["breathing"].set_volume(breathing_vol)
         
-            # Fade in del tren
+         
             am.fade_train_volume(train_vol, duration)
             print("Breathing started and train fading in")
 
         elif audio_effect == "stop_breathing":
-            # Detener breathing nada más
+            
             if "breathing" in am.sounds:
                 am.stop_sound("breathing", fade_out=2.0)
                 print("Breathing stopped - silencio")
 
         elif audio_effect == "restore_whispers":
-            # Restaurar whispers gradualmente
+            
             volume = audio_params.get("volume", 0.15)
             fade_in = audio_params.get("fade_in", 3.0)
             
@@ -571,11 +539,10 @@ class DialogueManager:
             print("Whispers restored")
             
         elif audio_effect == "return_to_menu":
-            # NUEVO: Retornar al menú (GAME OVER)
+            
             self._return_to_menu()
 
     def _play_single_sound(self, sound_file):
-        """Reproduce un solo sonido de manera controlada"""
         am = self.game.audio_manager
         sound_map = {
             "whispers.mp3": ("whispers", 0.4),
@@ -618,7 +585,6 @@ class DialogueManager:
                 self.game.audio_manager.stop_all_sounds()
             return "survival_start"
 
-        # DETECTAR FINAL AUTOMÁTICO
         if current_line and current_line.get("character") == "FINAL_AUTOMATICO":
             self._aplicar_final_automatico()
             return "final_automatico"
@@ -747,20 +713,16 @@ class DialogueManager:
         if not self.is_dialogue_active or not self.current_scene:
             return
         
-        # Manejar efecto screamer - SI ESTÁ ACTIVO, SOLO DIBUJAR EL SCREAMER Y NADA MÁS
         if self.effect_active and self.effect_type == "screamer":
             self._apply_screamer_effect_draw()
-            return  # <--- AGREGAR ESTE RETURN PARA SALIR DEL MÉTODO
+            return  
         
-        # Manejar efecto blink_black (existente)
         elif self.effect_active and self.effect_type == "blink_black":
             self._apply_blink_black_effect()
         else:
-            # Dibujar fondo principal
             if self.current_background:
                 self.screen.blit(self.current_background, (0, 0))
                 
-                # Dibujar overlay del fantasma (si existe)
                 if self.ghost_overlay and self.ghost_alpha > 0:
                     ghost_surface = self.ghost_overlay.copy()
                     ghost_surface.set_alpha(int(self.ghost_alpha * 255))
@@ -768,10 +730,8 @@ class DialogueManager:
             else:
                 self.screen.fill(self.BLACK)
             
-            # Aplicar viñeta sobre todo
             self.screen.blit(self.vignette_surface, (0, 0))
         
-        # SOLO dibujar diálogos/choices si NO hay efecto activo
         if not self.effect_active:
             if self.showing_choice:
                 self._draw_choice()
@@ -799,14 +759,12 @@ class DialogueManager:
         return lines
     
     def _blit_text_with_shadow(self, text, pos):
-        """Dibuja texto con sombra sutil"""
         shadow = self.dialogue_font.render(text, True, (0, 0, 0))
         self.screen.blit(shadow, (pos[0] + 1, pos[1] + 1))
         surface = self.dialogue_font.render(text, True, self.WHITE)
         self.screen.blit(surface, pos)
     
     def render_text_typewriter(self, text, box_rect):
-        """Renderiza texto con efecto typewriter"""
         current_time = pygame.time.get_ticks()
         if text != self._tw_text:
             self._tw_text = text
@@ -822,11 +780,9 @@ class DialogueManager:
             if y_pos > box_rect.y + box_rect.height - 40:
                 break
             if shown + len(line) <= chars_to_show:
-                # línea completa
                 self._blit_text_with_shadow(line, (box_rect.x + 20, y_pos))
                 shown += len(line)
             else:
-                # parcial
                 remaining = max(0, chars_to_show - shown)
                 partial = line[:remaining]
                 self._blit_text_with_shadow(partial, (box_rect.x + 20, y_pos))
@@ -903,36 +859,29 @@ class DialogueManager:
         box_height = 200
         box_rect = pygame.Rect(50, self.HEIGHT - box_height - 20, self.WIDTH - 100, box_height)
 
-        # Efecto glass con blur simulado
         if self.current_background:
-            # Capturar zona del fondo para el efecto glass
             sub_surface = pygame.Surface((box_rect.width, box_rect.height))
             sub_surface.blit(self.screen, (0, 0), box_rect)
-            # Fake blur: scale down y up
             small = pygame.transform.smoothscale(sub_surface, (box_rect.width // 10, box_rect.height // 10))
             blurred = pygame.transform.smoothscale(small, (box_rect.width, box_rect.height))
         else:
             blurred = pygame.Surface((box_rect.width, box_rect.height))
             blurred.fill((0, 0, 0))
 
-        # Overlay semi-transparente
         overlay = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)
         overlay.fill((20, 20, 20, 140))
-        
-        # Gradiente ligero para respiro visual
+     
         grad = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)
         for i in range(box_rect.height):
             a = int(40 * (1 - abs((i - box_rect.height/2) / (box_rect.height/2))))
             grad.fill((0, 0, 0, a), rect=pygame.Rect(0, i, box_rect.width, 1))
 
-        # Componer el efecto glass
         self.screen.blit(blurred, box_rect)
         self.screen.blit(overlay, box_rect)
         self.screen.blit(grad, box_rect)
 
         pygame.draw.rect(self.screen, self.BORDER_COLOR, box_rect, 2, border_radius=10)
 
-        # Placa de nombre más discreta
         if character_name:
             name_rect = pygame.Rect(box_rect.x + 20, box_rect.y - 30, 320, 36)
             name_bg = pygame.Surface((name_rect.width, name_rect.height), pygame.SRCALPHA)

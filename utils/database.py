@@ -14,7 +14,6 @@ class Database:
             os.makedirs(db_dir)
 
     def create_tables(self):
-        """Crea las tablas necesarias si no existen"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -114,7 +113,6 @@ class Database:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
-            # Verificar si ya existe una partida guardada para este jugador
             cursor.execute('''
                 SELECT id FROM partidas_guardadas 
                 WHERE jugador_id = ?
@@ -266,7 +264,7 @@ class Database:
             if resultado:
                 return resultado[0]
             else:
-                return 0  # Valor por defecto si no existe
+                return 0  
                 
         except Exception as e:
             print(f"Error al obtener afinidad: {e}")

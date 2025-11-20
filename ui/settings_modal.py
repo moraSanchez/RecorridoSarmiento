@@ -51,8 +51,7 @@ class SettingsModal:
         self.SLIDER_FILL = (100, 200, 100)
         self.SLIDER_HANDLE = (200, 200, 200)
         self.TEXT_COLOR = (255, 255, 255)
-        
-        # Cargar volúmenes actuales
+      
         volume_data = self.audio_manager.get_volume_data()
         self.volume_modal["sliders"][0]["value"] = volume_data["volume_level"]
         self.volume_modal["sliders"][1]["value"] = volume_data["ambient_volume"]
@@ -165,11 +164,11 @@ class SettingsModal:
     
     def save_and_exit(self, player_id, player_name):
         if player_id and player_name:
-            # Obtener el estado actual del juego
+           
             current_scene = self.game.get_current_scene_name()
             current_dialogue_index = self.game.get_current_dialogue_index()
             
-            # Guardar progreso en la base de datos
+            
             success = self.db_manager.guardar_progreso(
                 player_id, 
                 current_scene,

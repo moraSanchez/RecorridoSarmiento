@@ -1,9 +1,7 @@
-# ui/volume_control.py
 import pygame
 import os
 import sys
 
-# Agregar el directorio core al path para importar AudioManager
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from core.audio_manager import AudioManager
 
@@ -13,7 +11,7 @@ class VolumeControl:
         self.WIDTH = width
         self.HEIGHT = height
         
-        # Botón de volumen circular
+     
         button_radius = 20
         button_x = width - 50
         button_y = 50
@@ -26,7 +24,6 @@ class VolumeControl:
             "hover": False
         }
         
-        # Panel de volumen desplegable
         panel_width = 120
         panel_height = 180
         self.volume_panel = {
@@ -39,20 +36,17 @@ class VolumeControl:
         """Maneja eventos del control de volumen"""
         mouse_pos = pygame.mouse.get_pos()
         
-        # Verificar hover sobre el botón de volumen
         self.volume_button["hover"] = self.volume_button["rect"].collidepoint(mouse_pos)
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Clic izquierdo
-                # Clic en el botón de volumen
                 if self.volume_button["rect"].collidepoint(mouse_pos):
                     if self.volume_panel["visible"]:
                         self.volume_panel["visible"] = False
                     else:
                         self.volume_panel["visible"] = True
                     return True
-                
-                # Clic en la barra de volumen
+            
                 elif (self.volume_panel["visible"] and 
                       self.volume_panel["rect"].collidepoint(mouse_pos)):
                     bar_x = self.volume_panel["rect"].x + 45
@@ -69,7 +63,6 @@ class VolumeControl:
                         self.volume_panel["dragging"] = True
                         return True
             
-            # Clic fuera del panel de volumen lo cierra
             elif (self.volume_panel["visible"] and 
                   not self.volume_panel["rect"].collidepoint(mouse_pos) and
                   not self.volume_button["rect"].collidepoint(mouse_pos)):
