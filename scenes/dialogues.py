@@ -283,7 +283,7 @@ FIFTH_SCENE = {
             "character": "[PLAYER_NAME]",
             "background": "background-train-dark.jpg",
             "effect": "blink_black", 
-            "sound": "whispers.mp3", 
+            "sound": "sonido-tetrico.mp3",  
             "text": "¿¡Eh!? ¿¡Que es todo esto...!?",
             "audio_effect": "ducking",
             "audio_params": {"target": 0.08, "duration": 700, "release": 900}
@@ -315,7 +315,6 @@ FIFTH_SCENE = {
             "audio_effect": "ducking",
             "audio_params": {"target": 0.02, "duration": 400, "release": 600}
         },
-
         {
             "character": "[PLAYER_NAME]",
             "background": "ghost.jpg",  
@@ -326,13 +325,13 @@ FIFTH_SCENE = {
             "character": "Linyera",
             "background": "ghost.jpg", 
             "text": "Escuchame. No seas boludo y hace como que no hay nada. ",
-            "audio_effect": "prepare_survival"
+            "audio_effect": "prepare_survival"  
         },
         {
             "character": "Linyera",
             "background": "ghost.jpg", 
             "text": "No. la. mires.",
-            "audio_effect": "prepare_survival"
+            "audio_effect": "prepare_survival" 
         },
         {
             "character": "SURVIVAL_START",

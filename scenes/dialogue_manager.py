@@ -192,7 +192,6 @@ class DialogueManager:
         if not background_sound_data and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
             if self.game.audio_manager.current_train_sound:
                 self.game.audio_manager.stop_sound("train_sound", fade_out=1.0)
-                print("Tren detenido - escena sin background_sound")
             return
         
         if background_sound_data:
@@ -209,13 +208,11 @@ class DialogueManager:
                             train_sound = self.game.audio_manager.play_sound("train_sound", loop=True)
                             self.game.audio_manager.set_train_volume(current_volume)
                             self.game.audio_manager.current_train_sound = train_sound
-                            print(f"Tren INICIADO en {self.current_scene['id']} con volumen {current_volume}")
                         else:
                             # Tren ya está sonando - solo ajustar volumen si es necesario
                             existing_volume = self.game.audio_manager.sounds["train_sound"].get_volume()
                             if abs(existing_volume - current_volume) > 0.05:
                                 self.game.audio_manager.set_train_volume(current_volume)
-                                print(f"Tren volumen AJUSTADO a {current_volume} en {self.current_scene['id']}")
                         
                     else:
                         # Para otros sonidos de fondo (no tren)
@@ -232,7 +229,6 @@ class DialogueManager:
                                 pygame.mixer.music.play()
                                 
                             self.current_background_sound = background_sound_data
-                            print(f"Background sound cargado: {sound_file}")
                 else:
                     print("AudioManager no disponible")
             except Exception as e:
@@ -305,10 +301,8 @@ class DialogueManager:
                 if ghost_path:
                     self.ghost_overlay = pygame.image.load(ghost_path)
                     self.ghost_overlay = pygame.transform.scale(self.ghost_overlay, (self.WIDTH, self.HEIGHT))
-                    print(f"Ghost overlay cargado con alpha: {self.ghost_alpha}")
                 else:
                     self.ghost_overlay = None
-                    print(f"No se encontró ghost overlay: {ghost_file}")
             except Exception as e:
                 print(f"Error cargando ghost overlay: {e}")
                 self.ghost_overlay = None
@@ -324,9 +318,6 @@ class DialogueManager:
         sound_file = current_line.get("sound", "")
         audio_effect = current_line.get("audio_effect", "")
         audio_params = current_line.get("audio_params", {})
-        
-        print(f"DEBUG - Procesando sonido: {sound_file}")
-        print(f"DEBUG - Efecto de audio: {audio_effect}")
         
         # 1. PRIMERO aplicar efectos de audio
         if audio_effect and hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
@@ -344,31 +335,31 @@ class DialogueManager:
             target_vol = audio_params.get("target_volume", 0.05)
             duration = audio_params.get("duration", 3.0)
             am.fade_train_volume(target_vol, duration)
-            print(f"Fade train volume to {target_vol} over {duration}s")
             
         elif audio_effect == "stop_train":
             fade_out = audio_params.get("fade_out", 2.0)
             am.stop_sound("train_sound", fade_out=fade_out)
-            print(f"Stopping train sound with {fade_out}s fade out")
             
         elif audio_effect == "ducking":
             target = audio_params.get("target", 0.1)
             duration = audio_params.get("duration", 800)
             release = audio_params.get("release", 600)
             am.start_ducking(target, duration, release)
-            print(f"Ducking activated: target={target}")
             
         elif audio_effect == "stop_all_except_horror":
-            # Parar todo excepto sonidos de horror
-            for sound_name in ["train_sound", "whispers", "door", "train_stopping", "tetrico", "breathing"]:
+            # Parar todo excepto horror Y tetrico
+            for sound_name in ["train_sound", "whispers", "door", "train_stopping", "breathing"]:
                 if sound_name in am.sounds:
                     am.stop_sound(sound_name, fade_out=1.0)
-            print("Stopped all sounds except horror")
-            
+            print("Stopped all sounds except horror and tetrico")
+
         elif audio_effect == "prepare_survival":
-            # Silencio total antes de la supervivencia
-            am.stop_all_sounds()
-            print("Preparation for survival - complete silence")
+            # Silencio total antes de la supervivencia, PERO mantener tetrico
+            for sound_name in ["train_sound", "whispers", "door", "train_stopping", "horror", "breathing"]:
+                if sound_name in am.sounds:
+                    am.stop_sound(sound_name, fade_out=1.0)
+            # "tetrico" NO se detiene - sigue de fondo
+            print("Preparation for survival - complete silence except tetrico")
             
         elif audio_effect == "fade_in_train":
             target_vol = audio_params.get("target_volume", 0.08)
@@ -378,7 +369,6 @@ class DialogueManager:
                 train_sound = am.play_sound("train_sound", loop=True, fade_in=1.0)
                 am.current_train_sound = train_sound
                 am.fade_train_volume(target_vol, duration)
-            print(f"Fade in train to {target_vol} over {duration}s")
 
     def _play_single_sound(self, sound_file):
         """Reproduce un solo sonido de manera controlada"""
@@ -395,18 +385,15 @@ class DialogueManager:
         if sound_file in sound_map:
             sound_key, fade_in = sound_map[sound_file]
             
-            # Para whispers y horror, verificar si ya están sonando
             if sound_key in ["whispers", "horror"]:
                 if sound_key in am.sounds and am.sounds[sound_key].get_num_channels() == 0:
                     am.play_sound(sound_key, fade_in=fade_in)
-                    # Si es horror sound, aumentar volumen para jumpscare
                     if sound_key == "horror":
                         am.sounds["horror"].set_volume(1.0)  # VOLUMEN MÁXIMO
                     print(f"{sound_key} iniciado con fade_in {fade_in}")
                 else:
                     print(f"{sound_key} ya está sonando, no se reinicia")
             else:
-                # Para otros sonidos, reproducir siempre
                 am.play_sound(sound_key, fade_in=fade_in)
                 print(f"{sound_key} reproducido")
         else:
@@ -424,7 +411,6 @@ class DialogueManager:
         
         current_line = self.get_current_line()
 
-        # VERIFICAR SI LA LÍNEA ACTUAL ES SURVIVAL_START - TRIGGER AUTOMÁTICO
         if current_line and current_line.get("character") == "SURVIVAL_START":
             if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
                 self.game.audio_manager.stop_all_sounds()
@@ -434,11 +420,9 @@ class DialogueManager:
         self.effect_completed = False
         self.next_background = None
         
-        # Reset typewriter para nueva línea
         self._tw_text = ""
         self._tw_lines = []
         
-        # VERIFICAR SI LA NUEVA LÍNEA ES SURVIVAL_START - TRIGGER AUTOMÁTICO
         new_current_line = self.get_current_line()
         if new_current_line and new_current_line.get("character") == "SURVIVAL_START":
             if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
