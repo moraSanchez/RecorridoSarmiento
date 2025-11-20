@@ -43,6 +43,10 @@ class DialogueManager:
         self.background_sound = None
         self.current_background_sound = None
         
+        # Sistema de overlay para fantasma
+        self.ghost_overlay = None
+        self.ghost_alpha = 0
+        
         self.effect_active = False
         self.effect_type = None
         self.effect_start_time = 0
@@ -78,6 +82,8 @@ class DialogueManager:
         self.effect_active = False
         self.effect_completed = False
         self.next_background = None
+        self.ghost_overlay = None
+        self.ghost_alpha = 0
         
         # Reset typewriter
         self._tw_text = ""
@@ -91,7 +97,9 @@ class DialogueManager:
         
         if player_name:
             for line in self.current_scene["lines"]:
-                line["text"] = line["text"].replace("[PLAYER_NAME]", player_name)
+                # Solo reemplazar si la línea tiene texto
+                if "text" in line:
+                    line["text"] = line["text"].replace("[PLAYER_NAME]", player_name)
                 if line["character"] == "[PLAYER_NAME]":
                     line["character"] = player_name
     
@@ -243,11 +251,14 @@ class DialogueManager:
     def _load_background_for_current_line(self):
         if not self.current_scene or self.current_line_index >= len(self.current_scene["lines"]):
             self.current_background = None
+            self.ghost_overlay = None
+            self.ghost_alpha = 0
             return
             
         current_line = self.current_scene["lines"][self.current_line_index]
         background_file = current_line.get("background", "")
         
+        # Cargar fondo principal
         if background_file:
             try:
                 possible_paths = [
@@ -272,6 +283,38 @@ class DialogueManager:
                 self.current_background = None
         else:
             self.current_background = None
+        
+        # Cargar overlay del fantasma (si existe)
+        ghost_file = current_line.get("ghost_overlay", "")
+        self.ghost_alpha = current_line.get("ghost_alpha", 0)
+        
+        if ghost_file:
+            try:
+                possible_paths = [
+                    os.path.join("img", "backgrounds", ghost_file),
+                    os.path.join("img", ghost_file),
+                    ghost_file
+                ]
+                
+                ghost_path = None
+                for path in possible_paths:
+                    if os.path.exists(path):
+                        ghost_path = path
+                        break
+                
+                if ghost_path:
+                    self.ghost_overlay = pygame.image.load(ghost_path)
+                    self.ghost_overlay = pygame.transform.scale(self.ghost_overlay, (self.WIDTH, self.HEIGHT))
+                    print(f"Ghost overlay cargado con alpha: {self.ghost_alpha}")
+                else:
+                    self.ghost_overlay = None
+                    print(f"No se encontró ghost overlay: {ghost_file}")
+            except Exception as e:
+                print(f"Error cargando ghost overlay: {e}")
+                self.ghost_overlay = None
+        else:
+            self.ghost_overlay = None
+            self.ghost_alpha = 0
     
     def _play_sound_for_current_line(self):
         if not self.current_scene or self.current_line_index >= len(self.current_scene["lines"]):
@@ -342,7 +385,7 @@ class DialogueManager:
         am = self.game.audio_manager
         sound_map = {
             "whispers.mp3": ("whispers", 0.4),
-            "horror-sound.mp3": ("horror", 0.4),
+            "horror-sound.mp3": ("horror", 0.8),  # AUMENTADO para jumpscare
             "train-stopping.mp3": ("train_stopping", 0.2),
             "door-sound.mp3": ("door", 0.0),
             "breathing.mp3": ("breathing", 0.5),
@@ -356,6 +399,9 @@ class DialogueManager:
             if sound_key in ["whispers", "horror"]:
                 if sound_key in am.sounds and am.sounds[sound_key].get_num_channels() == 0:
                     am.play_sound(sound_key, fade_in=fade_in)
+                    # Si es horror sound, aumentar volumen para jumpscare
+                    if sound_key == "horror":
+                        am.sounds["horror"].set_volume(1.0)  # VOLUMEN MÁXIMO
                     print(f"{sound_key} iniciado con fade_in {fade_in}")
                 else:
                     print(f"{sound_key} ya está sonando, no se reinicia")
@@ -378,6 +424,12 @@ class DialogueManager:
         
         current_line = self.get_current_line()
 
+        # VERIFICAR SI LA LÍNEA ACTUAL ES SURVIVAL_START - TRIGGER AUTOMÁTICO
+        if current_line and current_line.get("character") == "SURVIVAL_START":
+            if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
+                self.game.audio_manager.stop_all_sounds()
+            return "survival_start"
+
         self.current_line_index += 1
         self.effect_completed = False
         self.next_background = None
@@ -386,8 +438,9 @@ class DialogueManager:
         self._tw_text = ""
         self._tw_lines = []
         
-        if (current_line and current_line.get("character") == "SURVIVAL_START" and 
-            hasattr(self, 'game')):
+        # VERIFICAR SI LA NUEVA LÍNEA ES SURVIVAL_START - TRIGGER AUTOMÁTICO
+        new_current_line = self.get_current_line()
+        if new_current_line and new_current_line.get("character") == "SURVIVAL_START":
             if hasattr(self, 'game') and hasattr(self.game, 'audio_manager'):
                 self.game.audio_manager.stop_all_sounds()
             return "survival_start"
@@ -457,7 +510,8 @@ class DialogueManager:
                 if button["clicked"] and button["rect"].collidepoint(mouse_pos):
                     if self.player_name:
                         for line in button["next_lines"]:
-                            line["text"] = line["text"].replace("[PLAYER_NAME]", self.player_name)
+                            if "text" in line:
+                                line["text"] = line["text"].replace("[PLAYER_NAME]", self.player_name)
                             if line["character"] == "[PLAYER_NAME]":
                                 line["character"] = self.player_name
                     
@@ -497,19 +551,29 @@ class DialogueManager:
         if self.effect_active and self.effect_type == "blink_black":
             self._apply_blink_black_effect()
         else:
+            # Dibujar fondo principal
             if self.current_background:
                 self.screen.blit(self.current_background, (0, 0))
-                # Aplicar viñeta sobre el fondo
-                self.screen.blit(self.vignette_surface, (0, 0))
+                
+                # Dibujar overlay del fantasma (si existe)
+                if self.ghost_overlay and self.ghost_alpha > 0:
+                    ghost_surface = self.ghost_overlay.copy()
+                    ghost_surface.set_alpha(int(self.ghost_alpha * 255))
+                    self.screen.blit(ghost_surface, (0, 0))
             else:
                 self.screen.fill(self.BLACK)
+            
+            # Aplicar viñeta sobre todo
+            self.screen.blit(self.vignette_surface, (0, 0))
         
         if not self.effect_active:
             if self.showing_choice:
                 self._draw_choice()
             else:
                 current_line = self.get_current_line()
-                if current_line and current_line.get("character") != "SURVIVAL_START":
+                # NO dibujar diálogo si es SURVIVAL_START
+                if (current_line and current_line.get("character") != "SURVIVAL_START" and 
+                    "text" in current_line and current_line["text"]):
                     self.draw_dialogue_box(current_line["text"], current_line["character"])
                     self.draw_continue_indicator()
     
@@ -647,7 +711,7 @@ class DialogueManager:
 
         # Overlay semi-transparente
         overlay = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)
-        overlay.fill((20, 20, 20, 140))  # transparencia del "vidrio"
+        overlay.fill((20, 20, 20, 140))  # transparencia del "vidrio")
         
         # Gradiente ligero para respiro visual
         grad = pygame.Surface((box_rect.width, box_rect.height), pygame.SRCALPHA)

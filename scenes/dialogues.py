@@ -242,12 +242,12 @@ FIFTH_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "audio_effect": "stop_train",  # PRIMERO detener el tren
-            "text": "",
+            "text": "", 
+            "audio_effect": "stop_train",
             "audio_params": {"fade_out": 0.1}
         },
         {
-            "character": "[PLAYER_NAME]",
+            "character": "[PLAYER_NAME]", 
             "background": "background-train.jpg",
             "sound": "train-stopping.mp3",
             "text": "El tren frenó de golpe. ¿Será... Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces están todas apagadas. Que raro."
@@ -306,24 +306,27 @@ FIFTH_SCENE = {
         },
         {
             "character": "",
-            "background": "background-train-dark.jpg",
+            "background": "background-train-dark.jpg",  
+            "ghost_overlay": "ghost.jpg", 
+            "ghost_alpha": 0.3,  
             "effect": "blink_black",
             "text": "...",
-            "sound": "horror-sound.mp3",
+            "sound": "horror-sound.mp3",  
             "audio_effect": "ducking",
             "audio_params": {"target": 0.02, "duration": 400, "release": 600}
         },
+
         {
             "character": "[PLAYER_NAME]",
-            "background": "ghost.jpg",
-            "sound": "horror-sound.mp3",
-            "text": "!?"
+            "background": "ghost.jpg",  
+            "text": "!?",
+            "audio_effect": "stop_all_except_horror"  
         },
         {
             "character": "Linyera",
             "background": "ghost.jpg", 
             "text": "Escuchame. No seas boludo y hace como que no hay nada. ",
-            "audio_effect": "stop_all_except_horror"
+            "audio_effect": "prepare_survival"
         },
         {
             "character": "Linyera",
