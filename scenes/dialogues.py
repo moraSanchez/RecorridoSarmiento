@@ -654,59 +654,26 @@ NINTH_SCENE = {
     "lines": [
         {
             "character": "",
-            "background": "background-train.jpg",  # CAMBIADO: station-final.jpg no existe
-            "sound": "train-stopping.mp3",  # CAMBIADO: train-stopping-gentle.mp3 no existe
-            "text": "El tren se detiene suavemente. La estacion fuera esta perfectamente iluminada."
+            "background": "background-train.jpg",
+            "sound": "train-stopping.mp3",
+            "text": "El tren se detiene suavemente. La estación fuera está perfectamente iluminada."
+        },
+        {
+            "character": "Linyera",
+            "background": "background-train.jpg",
+            "text": "Llegamos al final del recorrido. Es hora de que bajes."
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train.jpg", 
+            "text": "¿Esta es realmente la salida?"
+        },
+        {
+            "character": "FINAL_AUTOMATICO",
+            "background": "background-train.jpg",
+            "text": ""
         }
-    ],
-    "choice": {
-        "question": "",  # No hay pregunta, el final se decide por los puntos
-        "options": [
-            {
-                "text": "FINAL BUENO",  # Se activa si trust_points >= 8
-                "trust_points": 0,
-                "next_lines": [
-                    {
-                        "character": "[PLAYER_NAME]",
-                        "background": "background-train.jpg",  # CAMBIADO: station-final-good.jpg no existe
-                        "text": "¿De verdad? ¿Esta es la salida? No se como agradecerte..."
-                    },
-                    {
-                        "character": "Linyera",
-                        "background": "linyera.jpg",  # CAMBIADO: linyera-smiling.jpg no existe
-                        "text": "Baja, pibe. Tu viaje termino. Y gracias... por confiar."
-                    },
-                    {
-                        "character": "",
-                        "background": "background-train.jpg",  # CAMBIADO: station-final-good.jpg no existe
-                        "text": "El jugador baja. Al mirar atras, ve al Linyera desvaneciendose en una luz suave."
-                    }
-                ]
-            },
-            {
-                "text": "FINAL MALO",  # Se activa si trust_points < 8
-                "trust_points": 0,
-                "next_lines": [
-                    {
-                        "character": "[PLAYER_NAME]",
-                        "background": "background-train-dark.jpg",  # CAMBIADO: station-final-bad.jpg no existe
-                        "text": "¿Aca? Pero esta estacion se ve... abandonada."
-                    },
-                    {
-                        "character": "Linyera",
-                        "background": "linyera.jpg",
-                        "text": "Baja aca. Es lo que mereces."
-                    },
-                    {
-                        "character": "",
-                        "background": "background-train-dark.jpg",  # CAMBIADO: black_screen.jpg no existe
-                        "sound": "door-sound.mp3",  # CAMBIADO: collapse-sound.mp3 no existe
-                        "text": "La estacion se desmorona al bajar. Oscuridad eterna."
-                    }
-                ]
-            }
-        ]
-    }
+    ]
 }
 
 SCENES = {

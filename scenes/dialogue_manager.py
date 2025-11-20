@@ -152,6 +152,79 @@ class DialogueManager:
                     self.game.audio_manager.play_menu_music()
                 self.is_dialogue_active = False
                 print("ESTADO ACTUALIZADO A MENU")
+    
+    def _aplicar_final_automatico(self):
+        """Aplica el final automático basado en la afinidad con el Linyera"""
+        if not (hasattr(self, 'game') and getattr(self.game, 'player_id', None)):
+            return
+
+        puntos_afinidad = self.game.db_manager.obtener_afinidad(self.game.player_id)
+        
+        # DEFINIR FINAL BUENO O MALO SEGÚN AFINIDAD
+        if puntos_afinidad >= 8:  # Umbral para final bueno
+            final_lines = [
+                {
+                    "character": "[PLAYER_NAME]",
+                    "background": "background-train.jpg",
+                    "text": "¿De verdad? ¿Esta es la salida? No sé cómo agradecerte..."
+                },
+                {
+                    "character": "Linyera",
+                    "background": "linyera.jpg",
+                    "text": "Baja, pibe. Tu viaje terminó. Y gracias... por confiar."
+                },
+                {
+                    "character": "",
+                    "background": "background-train.jpg",
+                    "text": "Bajas del tren. Al mirar atrás, ves al Linyera desvaneciéndose en una luz suave. Lograste escapar."
+                }
+            ]
+        else:  # Final malo
+            final_lines = [
+                {
+                    "character": "[PLAYER_NAME]",
+                    "background": "background-train-dark.jpg",
+                    "text": "¿Acá? Pero esta estación se ve... abandonada."
+                },
+                {
+                    "character": "Linyera",
+                    "background": "linyera.jpg",
+                    "text": "Baja acá. Es lo que mereces por no confiar."
+                },
+                {
+                    "character": "",
+                    "background": "background-train-dark.jpg",
+                    "sound": "door-sound.mp3",
+                    "text": "La estación se desmorona al bajar. Oscuridad eterna. Te perdiste para siempre en el recorrido."
+                }
+            ]
+        
+        # REEMPLAZAR [PLAYER_NAME] con el nombre real del jugador
+        if self.player_name:
+            for line in final_lines:
+                if "text" in line:
+                    line["text"] = line["text"].replace("[PLAYER_NAME]", self.player_name)
+                if line.get("character") == "[PLAYER_NAME]":
+                    line["character"] = self.player_name
+        
+        # Crear escena del final automático
+        final_scene = {
+            "id": "final_automatico",
+            "lines": final_lines
+        }
+        
+        if isinstance(self.current_scene, dict) and "background_sound" in self.current_scene:
+            final_scene["background_sound"] = self.current_scene["background_sound"]
+        
+        # Cargar la escena final automáticamente
+        self.current_scene = final_scene
+        self.current_line_index = 0
+        self.showing_choice = False
+        self.choice_data = None
+        self.choice_buttons = []
+        
+        self._load_background_for_current_line()
+        print(f"Final automático aplicado. Afinidad: {puntos_afinidad}")
                 
     def load_scene(self, scene_data, player_name=""):
         self.current_scene = scene_data
@@ -535,6 +608,11 @@ class DialogueManager:
                 self.game.audio_manager.stop_all_sounds()
             return "survival_start"
 
+        # DETECTAR FINAL AUTOMÁTICO
+        if current_line and current_line.get("character") == "FINAL_AUTOMATICO":
+            self._aplicar_final_automatico()
+            return "final_automatico"
+
         self.current_line_index += 1
         self.effect_completed = False
         self.next_background = None
@@ -648,6 +726,7 @@ class DialogueManager:
         return False
     
     def get_current_line(self):
+        """OBTENER LÍNEA ACTUAL - MÉTODO QUE FALTABA"""
         if (not self.is_dialogue_active or not self.current_scene or 
             self.current_line_index >= len(self.current_scene["lines"])):
             return None
@@ -689,6 +768,7 @@ class DialogueManager:
             else:
                 current_line = self.get_current_line()
                 if (current_line and current_line.get("character") != "SURVIVAL_START" and 
+                    current_line.get("character") != "FINAL_AUTOMATICO" and
                     "text" in current_line and current_line["text"]):
                     self.draw_dialogue_box(current_line["text"], current_line["character"])
                     self.draw_continue_indicator()

@@ -243,8 +243,6 @@ class Database:
             print(f"Error al eliminar jugador: {e}")
             return False
 
-    # En la clase Database, agrega estos métodos:
-
     def actualizar_afinidad(self, jugador_id, cambio_puntos):
         """Actualiza los puntos de afinidad (puede ser positivo o negativo)"""
         afinidad_actual = self.obtener_afinidad(jugador_id)
