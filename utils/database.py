@@ -243,6 +243,37 @@ class Database:
             print(f"Error al eliminar jugador: {e}")
             return False
 
+    # En la clase Database, agrega estos métodos:
+
+    def actualizar_afinidad(self, jugador_id, cambio_puntos):
+        """Actualiza los puntos de afinidad (puede ser positivo o negativo)"""
+        afinidad_actual = self.obtener_afinidad(jugador_id)
+        nueva_afinidad = afinidad_actual + cambio_puntos
+        return self.guardar_afinidad(jugador_id, nueva_afinidad)
+
+    def obtener_afinidad(self, jugador_id):
+        """Obtiene los puntos de afinidad del jugador"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT puntos_afinidad FROM afinidad_linyera 
+                WHERE jugador_id = ?
+            ''', (jugador_id,))
+            
+            resultado = cursor.fetchone()
+            conn.close()
+            
+            if resultado:
+                return resultado[0]
+            else:
+                return 0  # Valor por defecto si no existe
+                
+        except Exception as e:
+            print(f"Error al obtener afinidad: {e}")
+            return 0
+
     def guardar_afinidad(self, jugador_id, puntos_afinidad):
         """Guarda o actualiza los puntos de afinidad del jugador con el Linyera"""
         try:
@@ -281,34 +312,5 @@ class Database:
         except Exception as e:
             print(f"Error al guardar afinidad: {e}")
             return False
-
-    def obtener_afinidad(self, jugador_id):
-        """Obtiene los puntos de afinidad del jugador"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            
-            cursor.execute('''
-                SELECT puntos_afinidad FROM afinidad_linyera 
-                WHERE jugador_id = ?
-            ''', (jugador_id,))
-            
-            resultado = cursor.fetchone()
-            conn.close()
-            
-            if resultado:
-                return resultado[0]
-            else:
-                return 0  # Valor por defecto si no existe
-                
-        except Exception as e:
-            print(f"Error al obtener afinidad: {e}")
-            return 0
-
-    def actualizar_afinidad(self, jugador_id, cambio_puntos):
-        """Actualiza los puntos de afinidad (puede ser positivo o negativo)"""
-        afinidad_actual = self.obtener_afinidad(jugador_id)
-        nueva_afinidad = afinidad_actual + cambio_puntos
-        return self.guardar_afinidad(jugador_id, nueva_afinidad)
 
 db_manager = Database()

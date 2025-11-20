@@ -216,8 +216,7 @@ class SceneManager:
         
         # Instrucciones
         instructions = [
-            "↑↓ para navegar | ENTER para cargar | DEL para eliminar",
-            "ESC para volver al menú"
+            ""
         ]
         
         for i, instruction in enumerate(instructions):
