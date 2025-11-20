@@ -37,13 +37,11 @@ SECOND_SCENE = {
         {
             "character": "[PLAYER_NAME]",
             "background": None,
-            "sound": "door-sound.mp3",
             "text": "Ugh, hay un olor re raro. ¿Algo podrido? Parece estar en todo el tren."
         },
         {
             "character": "[PLAYER_NAME]",
             "background": None,
-            "sound": "door-sound.mp3",
             "text": "Bueno, me siento en el fondo y listo, no me voy a quejar tanto, al menos espero que vaya rápido."
         }
     ]
@@ -53,7 +51,7 @@ THIRD_SCENE = {
     "id": "third_scene",
     "background_sound": {
         "file": "train-sound.mp3",
-        "volume": 0.3,
+        "volume": 0.8,
         "loop": True
     },
     "lines": [
@@ -175,7 +173,7 @@ FOURTH_SCENE = {
     "id": "fourth_scene",
     "background_sound": {
         "file": "train-sound.mp3",
-        "volume": 0.3,
+        "volume": 0.8,
         "loop": True
     },
     "lines": [
@@ -220,12 +218,6 @@ FOURTH_SCENE = {
             "text": "..."
         },
         {
-            "character": "",
-            "background": "background-train.jpg",
-            "sound": "train-stopping.mp3",
-            "text": "El tren frena bruscamente en una estación oscura"
-        },
-        {
             "character": "Linyera",
             "background": "linyera.jpg", 
             "text": "Ahí tenés una. Mirá bien quién baja... y quién sube."
@@ -245,23 +237,28 @@ FOURTH_SCENE = {
 
 FIFTH_SCENE = {
     "id": "fifth_scene",
-    "background_sound": {
-        "file": "train-sound.mp3",
-        "volume": 0.3,
-        "loop": True
-    },
+    # SIN background_sound - el tren debe estar silenciado aquí
     "lines": [
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train.jpg",
-            "sound": "sonido-tetrico.mp3",
+            "audio_effect": "stop_train",  # PRIMERO detener el tren
+            "text": "",
+            "audio_params": {"fade_out": 0.1}
+        },
+        {
+            "character": "[PLAYER_NAME]",
+            "background": "background-train.jpg",
+            "sound": "train-stopping.mp3",
             "text": "El tren frenó de golpe. ¿Será... Floresta? No hay cartel, no hay nadie... ni siquiera parece Floresta. Las luces están todas apagadas. Que raro."
         },
         {
             "character": "",
-            "background": "background-train.jpg",
+            "background": "background-train.jpg", 
             "sound": "whispers.mp3",
-            "text": "@#&*¡%$..."
+            "text": "@#&*¡%$...",
+            "audio_effect": "ducking",
+            "audio_params": {"target": 0.1, "duration": 800, "release": 1000}
         },
         {
             "character": "[PLAYER_NAME]",
@@ -278,35 +275,43 @@ FIFTH_SCENE = {
             "background": "background-train.jpg",  
             "sound": "door-sound.mp3",
             "text": "¡!", 
-            "effect": "blink_black"  
+            "effect": "blink_black",
+            "audio_effect": "ducking",
+            "audio_params": {"target": 0.05, "duration": 500, "release": 800}
         },
         {
             "character": "[PLAYER_NAME]",
             "background": "background-train-dark.jpg",
             "effect": "blink_black", 
-            "sound": "whispers.mp3",
-            "text": "¿¡Eh!? ¿¡Que es todo esto...!?"
+            "sound": "whispers.mp3", 
+            "text": "¿¡Eh!? ¿¡Que es todo esto...!?",
+            "audio_effect": "ducking",
+            "audio_params": {"target": 0.08, "duration": 700, "release": 900}
         },
         {
             "character": "",
             "background": "background-train-dark.jpg",
             "effect": "blink_black", 
-            "sound": "whispers.mp3",
-            "text": "."
+            "text": ".",
+            "audio_effect": "ducking", 
+            "audio_params": {"target": 0.06, "duration": 600, "release": 800}
         },
         {
             "character": "",
             "background": "background-train-dark.jpg",
             "effect": "blink_black", 
-            "sound": "whispers.mp3",
-            "text": ".."
+            "text": "..",
+            "audio_effect": "ducking",
+            "audio_params": {"target": 0.04, "duration": 500, "release": 700}
         },
         {
             "character": "",
-            "background": None,
+            "background": "background-train-dark.jpg",
             "effect": "blink_black",
+            "text": "...",
             "sound": "horror-sound.mp3",
-            "text": "..."
+            "audio_effect": "ducking",
+            "audio_params": {"target": 0.02, "duration": 400, "release": 600}
         },
         {
             "character": "[PLAYER_NAME]",
@@ -317,14 +322,15 @@ FIFTH_SCENE = {
         {
             "character": "Linyera",
             "background": "ghost.jpg", 
-            "text": "Escuchame. No seas boludo y hace como que no hay nada. "
+            "text": "Escuchame. No seas boludo y hace como que no hay nada. ",
+            "audio_effect": "stop_all_except_horror"
         },
         {
             "character": "Linyera",
             "background": "ghost.jpg", 
-            "text": "No la mires..."
+            "text": "No. la. mires.",
+            "audio_effect": "prepare_survival"
         },
-        # ESTA LÍNEA ACTIVA LA SUPERVIVENCIA PERO NO SE VE - SIN TEXTO
         {
             "character": "SURVIVAL_START",
             "background": "ghost.jpg",
@@ -338,30 +344,27 @@ POST_SURVIVAL_SCENE = {
     "id": "post_survival",
     "background_sound": {
         "file": "train-sound.mp3", 
-        "volume": 0.2,
+        "volume": 0.8,  # MUY bajo post-supervivencia
         "loop": True
     },
     "lines": [
         {
             "character": "",
             "background": "black.jpg",
-            "text": "...",
-            "effect": "blink_black"
+            "text": "!",
+            "effect": "blink_black",
+            "sound": "breathing.mp3",
+            "audio_effect": "fade_in_train",  # NUEVO: tren vuelve gradualmente
+            "audio_params": {"target_volume": 0.08, "duration": 5.0}
         },
         {
-            "character": "",
-            "background": "background-train.jpg", 
-            "text": "(Después de unos segundos, las luces del vagón se normalizan. El fantasma ha desaparecido)."
-        },
-        {
-            "character": "NARRADOR",
-            "background": "background-train.jpg",
-            "text": "(Mi corazón... va a salirse del pecho. ¿Qué carajo fue eso? ¿Estoy soñando? Eso... eso no era humano.)"
-        },
-        {
-            "character": "Linyera", 
-            "background": "linyera.jpg",
-            "text": "Ya se fue... por ahora. Pero va a volver. Siempre vuelve."
+            "character": "[PLAYER_NAME]", 
+            "background": "background-train-dark.jpg",
+            "effect": "blink_black",
+            "text": "Mi corazón... no puedo respirar... ¿Qué fue eso?",
+            "sound": "breathing.mp3",
+            "audio_effect": "ducking",
+            "audio_params": {"target": 0.1, "duration": 600, "release": 800}
         }
     ]
 }

@@ -113,6 +113,14 @@ class Game:
     
     def handle_playing_events(self, event):
         if event.type == pygame.KEYDOWN:
+            # Si estamos en survival scene, manejar solo SPACE
+            if self.in_survival_scene:
+                if event.key == pygame.K_SPACE:
+                    # El survival scene maneja SPACE internamente
+                    pass
+                # IGNORAR todas las otras teclas incluyendo ESC
+                return
+                
             if event.key == pygame.K_SPACE:
                 result = self.dialogue_manager.advance_dialogue()
                 if result == "scene_end":
@@ -121,24 +129,26 @@ class Game:
                     self.start_survival_scene()
                     
             elif event.key == pygame.K_ESCAPE:
-                # ESC sale de la supervivencia también
-                if self.in_survival_scene:
-                    self.end_survival_scene()
-                else:
+                # ESC solo sale si NO estamos en survival scene
+                if not self.in_survival_scene:
                     self.current_state = "MENU"
                     self.audio_manager.stop_all_sounds()
                     self.audio_manager.play_menu_music()
         
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                result = self.dialogue_manager.advance_dialogue()
-                if result == "scene_end":
-                    self.advance_to_next_scene()
-                elif result == "survival_start":
-                    self.start_survival_scene()
+                # Si estamos en survival, el click no avanza diálogo
+                if not self.in_survival_scene:
+                    result = self.dialogue_manager.advance_dialogue()
+                    if result == "scene_end":
+                        self.advance_to_next_scene()
+                    elif result == "survival_start":
+                        self.start_survival_scene()
         
-        self.dialogue_manager.handle_choice_events(event)
-    
+        # Solo manejar choices si no estamos en survival
+        if not self.in_survival_scene:
+            self.dialogue_manager.handle_choice_events(event)
+
     def advance_to_next_scene(self):
         from scenes.dialogues import SCENES
         
